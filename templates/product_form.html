@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if pid else 'New' }} product{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ 'Edit product' if pid else 'New product' }}</h1></div></div>
+<form method="post" enctype="multipart/form-data" class="card" style="max-width:820px">
+  <div class="form-grid">
+    <div><label>SKU</label><input name="sku" value="{{ row.get('sku','') }}" required></div>
+    <div><label>Name</label><input name="name" value="{{ row.get('name','') }}" required></div>
+    <div><label>Category</label><select name="category_id">
+      {% for c in cats %}<option value="{{ c.id }}" {{ 'selected' if row.get('category_id')|string==c.id|string }}>{{ c.name }}</option>{% endfor %}</select></div>
+    <div><label>Unit (pc, kg, loaf…)</label><input name="unit" value="{{ row.get('unit','pc') }}" required></div>
+    <div><label>Unit cost ({{ currency }})</label><input type="number" step="0.01" min="0" name="unit_cost" value="{{ row.get('unit_cost','') }}" required></div>
+    <div><label>Selling price ({{ currency }})</label><input type="number" step="0.01" min="0" name="unit_price" value="{{ row.get('unit_price','') }}" required></div>
+    <div><label>Weight per unit (kg)</label><input type="number" step="0.001" min="0" name="kg_per_unit" value="{{ row.get('kg_per_unit','') }}" required></div>
+    <div><label>Shelf life (days)</label><input type="number" min="1" name="shelf_life_days" value="{{ row.get('shelf_life_days','') }}" required></div>
+    <div><label>Active</label><select name="active"><option value="1" {{ 'selected' if row.get('active') }}>Yes</option><option value="" {{ '' if row.get('active') else 'selected' }}>No</option></select></div>
+    <div style="grid-column:1/-1"><label>Product photo (optional — replaces the default illustration shown in the shop)</label>
+      {% set im = product_image(pid, row.get('sku','')) if pid else None %}
+      {% if im %}<img src="{{ im.url }}" alt="" style="height:70px;border-radius:12px;display:block;margin-bottom:8px;background:var(--surface-2)">{% endif %}
+      <input type="file" name="photo" accept="image/*"></div>
+  </div>
+  <button class="btn">Save</button> <a class="btn ghost" href="{{ url_for('products') }}">Cancel</a>
+</form>
+{% endblock %}

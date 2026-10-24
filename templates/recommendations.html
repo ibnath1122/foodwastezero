@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, cat_icon %}
+{% block title %}AI Actions{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>AI Actions</h1><p>Recommendations to save stock before it expires. Apply a markdown, donate, or dismiss.</p></div>
+  <div class="stack">
+    {% set n_disc = pending|selectattr('action_type','in',['discount','markdown'])|list|length %}
+    {% if n_disc %}<form method="post" action="{{ url_for('apply_all_discounts') }}" onsubmit="return confirm('Apply all {{ n_disc }} suggested markdowns now?')"><button class="btn">{{ icon('i-check') }}Apply all markdowns ({{ n_disc }})</button></form>{% endif %}
+    <form method="post" action="{{ url_for('scan') }}"><button class="btn ghost">{{ icon('i-refresh') }}Re-run AI scan</button></form>
+  </div>
+</div>
+
+{% if pending %}<div data-enhance data-limit="6" data-search="Search product or batch…" data-filters="urgency:Urgency,type:Action">
+{% for a in pending %}
+<div class="card rec {{ a.urgency }}" data-item data-f-urgency="{{ a.urgency|capitalize }}" data-f-type="{{ a.action_type|capitalize }}">
+  {{ cat_icon(a.category_name) }}
+  <div>
+    <h3>{{ a.product_name }} <span class="muted small">· {{ a.batch_code }}</span></h3>
+    <div class="meta">
+      <span class="pill {{ 'bad' if a.urgency=='critical' else 'warn' if a.urgency=='high' else 'grey' }}">{{ a.urgency }}</span>
+      <span class="pill {{ 'info' if a.action_type=='discount' else 'ok' if a.action_type=='donate' else 'warn' }}">
+        {% if a.action_type=='donate' %}Donate {{ a.qty_affected }} {{ a.unit }}
+        {% else %}{{ a.discount_pct|int }}% markdown on {{ a.qty_affected }} {{ a.unit }}{% endif %}</span>
+      <span class="pill grey">Expires {{ a.expires_on|fdate }}</span>
+      <span class="pill grey">Recovers {{ a.est_value|money }}</span>
+    </div>
+    <div class="muted small">{{ a.rationale }}</div>
+  </div>
+  <div class="actions">
+    <form class="inline" method="post" action="{{ url_for('resolve_action', aid=a.id, verb='apply') }}">
+      <button class="btn sm">{{ 'Donate…' if a.action_type=='donate' else 'Apply' }}</button></form>
+    <form class="inline" method="post" action="{{ url_for('resolve_action', aid=a.id, verb='dismiss') }}">
+      <button class="btn ghost sm">Dismiss</button></form>
+  </div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="card empty"><div class="empty-art">{% include "_art_basket.html" %}</div>No pending recommendations. Stock is on track.</div>
+{% endif %}
+
+{% if history %}
+<div class="card table-wrap" style="margin-top:22px" data-enhance data-limit="5" data-search="Search decisions…" data-filters="status:Status"><h2>Recent decisions</h2><table>
+  <tr><th>Product</th><th>Action</th><th>Status</th><th>When</th></tr>
+  {% for h in history %}<tr data-f-status="{{ h.status|capitalize }}">
+    <td>{{ h.product_name }} <span class="muted small">{{ h.batch_code }}</span></td>
+    <td>{{ h.action_type|capitalize }}{% if h.discount_pct %} {{ h.discount_pct|int }}%{% endif %}</td>
+    <td><span class="pill {{ 'ok' if h.status=='applied' else 'grey' }}">{{ h.status }}</span></td>
+    <td class="muted small">{{ h.resolved_at|fdate }}</td>
+  </tr>{% endfor %}
+</table></div>
+{% endif %}
+{% endblock %}

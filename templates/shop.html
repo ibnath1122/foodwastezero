@@ -1,0 +1,79 @@
+{% extends "shop_base.html" %}
+{% block title %}Shop{% endblock %}
+{% block content %}
+<section class="s-hero">
+  <div class="wrap hero-grid">
+   <div class="copy">
+    <h1>Fresh food, priced to be eaten today.</h1>
+    <p>Everything here is on our shelves right now. Items close to their best-before date are marked down, so good food gets eaten instead of binned.</p>
+    <div class="facts">
+      <div><b data-count="{{ stats.products }}">{{ stats.products }}</b><span>products in stock</span></div>
+      <div><b data-count="{{ stats.deals }}">{{ stats.deals }}</b><span>on rescue deal</span></div>
+      <div><b><span data-count="{{ stats.max_pct }}">{{ stats.max_pct }}</span>%</b><span>biggest discount today</span></div>
+    </div>
+   </div>
+   {% if featured %}{% set f = featured %}
+   <a class="feat" href="{{ url_for('shop_product', pid=f.id) }}">
+     <div class="pic" data-cat="{{ f.category }}">{{ art(f.category, f) }}{% if f.pct %}<span class="off">-{{ f.pct|int }}%</span>{% endif %}</div>
+     <div class="fb"><span class="fl">{{ 'Biggest deal today' if f.pct else 'Best before soonest' }}</span>
+       <h3>{{ f.name }}</h3>
+       <div class="price"><b {% if f.pct %}class="sale"{% endif %}>{{ currency }}{{ f.price|num }}</b>{% if f.pct %}<s>{{ currency }}{{ f.base|num }}</s>{% endif %}<span class="unit">/ {{ f.unit }}</span></div></div>
+   </a>{% endif %}
+  </div>
+  <div class="shelf" aria-hidden="true"><div class="track">
+    {% for rep in range(2) %}{% for p in shelf %}{% set im = product_image(p.id, p.sku) %}{% if im %}<img src="{{ im.url }}" alt="">{% endif %}{% endfor %}{% endfor %}
+  </div></div>
+</section>
+
+<div class="wrap">
+  <form class="s-filters" method="get">
+    <div class="tabs">
+      {% for k, label in [('all','All'),('deal','Rescue deals'),('fresh','Regular price'),('last','Last chance')] %}
+      <a class="tab {{ 'on' if kind==k }}" href="{{ url_for('shop', type=k, category=cat, q=q, sort=sort) }}">{{ label }} <span>{{ counts[k] }}</span></a>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="type" value="{{ kind }}">
+    <div class="ctrls">
+      <input type="search" name="q" value="{{ q }}" placeholder="Search products…" aria-label="Search products">
+      <select name="category" onchange="this.form.submit()" aria-label="Category">
+        <option value="">All categories</option>
+        {% for c in cats %}<option {{ 'selected' if c==cat }}>{{ c }}</option>{% endfor %}
+      </select>
+      <select name="sort" onchange="this.form.submit()" aria-label="Sort">
+        {% for k, label in [('deals','Biggest discount'),('expiry','Expiring soon'),('low','Price: low to high'),('high','Price: high to low'),('name','Name')] %}
+        <option value="{{ k }}" {{ 'selected' if k==sort }}>{{ label }}</option>{% endfor %}
+      </select>
+      <button class="s-btn">Search</button>
+    </div>
+  </form>
+
+  {% if items %}
+  <div class="s-grid">
+    {% for p in items %}
+    <a class="s-card" href="{{ url_for('shop_product', pid=p.id) }}">
+      <div class="pic" data-cat="{{ p.category }}">{{ art(p.category, p) }}
+        {% if p.pct %}<span class="off">-{{ p.pct|int }}%</span>{% endif %}
+        {% if p.days_left <= 1 %}<span class="last">Last chance</span>{% endif %}
+      </div>
+      <div class="body">
+        <span class="cat">{{ p.category }}</span>
+        <h3>{{ p.name }}</h3>
+        <div class="price">
+          <b {% if p.pct %}class="sale"{% endif %}>{{ currency }}{{ p.price|num }}</b>
+          {% if p.pct %}<s>{{ currency }}{{ p.base|num }}</s>{% endif %}
+          <span class="unit">/ {{ p.unit }}</span>
+        </div>
+        <div class="meta">
+          <span class="pill {{ 'bad' if p.days_left<=1 else 'warn' if p.days_left<=3 else 'ok' }}">
+            {% if p.days_left==0 %}Best before today{% elif p.days_left==1 %}Best before tomorrow{% else %}{{ p.days_left }} days left{% endif %}</span>
+          <span class="stock {{ 'low' if p.qty<=5 }}">{{ 'Only %d left'|format(p.qty) if p.qty<=5 else 'In stock' }}</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">Nothing matches that search. <a href="{{ url_for('shop') }}">Show all products</a></div>
+  {% endif %}
+</div>
+{% endblock %}

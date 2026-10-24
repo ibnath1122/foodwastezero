@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Donations{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Donations</h1><p>Surplus food sent to partners instead of the bin.</p></div>
+  <a class="btn" href="{{ url_for('donation_new') }}">+ Log donation</a>
+</div>
+<div class="grid g2">
+  <div class="card table-wrap wrapcells" data-enhance data-limit="8" data-csv="donations" data-search="Search donations…" data-filters="partner:Partner"><h2>Recent donations</h2><table>
+    <tr><th>Date</th><th>Product</th><th>Partner</th><th class="num">Qty</th><th class="num">Kg</th><th class="num">Meals</th></tr>
+    {% for r in rows %}<tr data-f-partner="{{ r.partner_name }}">
+      <td data-sort="{{ r.donated_on.isoformat() }}">{{ r.donated_on|fdate }}</td><td>{{ r.product_name }}</td><td>{{ r.partner_name }}</td>
+      <td class="num">{{ r.quantity }}</td><td class="num">{{ r.kg|num(1) }}</td><td class="num">{{ r.meals }}</td>
+    </tr>{% else %}<tr><td colspan="6" class="empty">No donations yet.</td></tr>{% endfor %}
+  </table></div>
+  <div>
+    <div class="card" style="margin-bottom:16px"><h2>Partners</h2>
+      {% for p in partners %}<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)">
+        <div><b>{{ p.name }}</b><div class="muted small">{{ p.kind|replace('_',' ') }} · {{ p.area }} · {{ p.phone }}</div></div>
+        <span class="pill ok">{{ p.meals }} meals</span></div>{% endfor %}
+    </div>
+    <form method="post" action="{{ url_for('partner_new') }}" class="card"><h2>Add partner</h2>
+      <div class="form-grid">
+        <div><label>Name</label><input name="name" required></div>
+        <div><label>Type</label><select name="kind">
+          <option value="charity">Charity</option><option value="food_bank">Food bank</option><option value="shelter">Shelter</option>
+          <option value="farm">Farm</option><option value="compost">Compost</option></select></div>
+        <div><label>Area</label><input name="area"></div>
+        <div><label>Phone</label><input name="phone"></div>
+      </div><button class="btn">Add</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

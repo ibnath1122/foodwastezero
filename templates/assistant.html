@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Ask AI{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Ask AI</h1><p>Chat with your store data: stock, expiring batches, sales, waste, reordering.{% if not enabled %} <b>(Gemini key not set — you will get data summaries only.)</b>{% endif %}</p></div></div>
+<div class="card chatpage" id="adminchat" data-endpoint="{{ url_for('api_admin_chat') }}"
+     data-hello="Hi! I can see your live inventory, sales and waste data. Ask me about the current situation or what to do next.">
+  <div class="chips">
+    {% for q in ["What's the current situation?", "Which items need action today?", "What should I reorder?", "How much waste did we have this month?", "What are the top sellers this week?", "Which products are overstocked?"] %}
+    <button type="button" class="chip" data-q="{{ q }}">{{ q }}</button>{% endfor %}
+  </div>
+  <div class="chat-log"></div>
+  <form class="chat-form"><input placeholder="Ask about your store…" autocomplete="off" maxlength="800"><button class="btn">Send</button></form>
+</div>
+<style>
+.chatpage{max-width:860px;display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:inherit;font-size:.85rem;font-weight:600;border:1px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:99px;padding:6px 13px;cursor:pointer}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chat-log{height:min(52vh,520px);overflow:auto;display:flex;flex-direction:column;gap:10px;padding:6px 2px}
+.msg{max-width:85%;padding:10px 14px;border-radius:16px;line-height:1.45;font-size:.95rem}
+.msg.user{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:4px}
+.msg.bot{align-self:flex-start;background:var(--surface-2);border-bottom-left-radius:4px}
+.msg.typing{opacity:.6;font-style:italic}
+.chat-form{display:flex;gap:8px}
+</style>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script>FWZChat(document.getElementById('adminchat'))</script>{% endblock %}

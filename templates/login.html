@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in · FoodWasteZero AI</title>
+{% include "_boot.html" %}
+</head>
+<body>
+{% include "_icons.html" %}
+<div class="auth">
+  <section class="auth-form">
+    <div class="auth-tools">
+      <button class="icon-btn" data-toggle-theme title="Switch light / dark mode" aria-label="Switch light or dark mode">
+        <svg class="ic moon"><use href="#i-moon"/></svg><svg class="ic sun"><use href="#i-sun"/></svg></button>
+      <button class="dot green" data-accent-set="green" title="Green theme" aria-label="Green theme"></button>
+      <button class="dot orange" data-accent-set="orange" title="Mango theme" aria-label="Mango theme"></button>
+      <button class="dot purple" data-accent-set="purple" title="Plum theme" aria-label="Purple theme"></button>
+    </div>
+    <div class="brand"><div class="logo"><svg class="ic"><use href="#i-leaf"/></svg></div><div>FoodWasteZero<small>FoodSphere AI</small></div></div>
+    <h1>Welcome back</h1>
+    <p class="muted" style="margin:0 0 24px">Predict what won't sell. Rescue it before it expires.</p>
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}
+    {% endwith %}
+    <form method="post" style="max-width:380px">
+      <div style="margin-bottom:14px"><label>Username</label><input name="username" autofocus required></div>
+      <div style="margin-bottom:20px"><label>Password</label><input type="password" name="password" required></div>
+      <button class="btn" style="width:100%;justify-content:center">Sign in</button>
+    </form>
+    <div class="hint" style="max-width:380px">Demo login: <b>admin</b> / <b>admin123</b></div>
+  </section>
+  <section class="hero">
+    <div class="float a"><svg class="ic" style="color:var(--accent)"><use href="#i-tag"/></svg>Bread <b>-25%</b> today</div>
+    <div class="float b"><svg class="ic" style="color:var(--accent)"><use href="#i-heart"/></svg><span><b>120</b> meals donated</span></div>
+    <div class="float c"><svg class="ic" style="color:var(--accent)"><use href="#i-leaf"/></svg><span><b>48 kg</b> CO₂ avoided</span></div>
+    <div>
+      <div class="hero-art">{% include "_art_basket.html" %}</div>
+      <h2>Zero waste. Full baskets.</h2>
+      <p>AI forecasts what will expire unsold and tells you whether to discount, donate or mark down.</p>
+    </div>
+  </section>
+</div>
+</body>
+</html>

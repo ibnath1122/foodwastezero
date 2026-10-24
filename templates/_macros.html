@@ -1,0 +1,2 @@
+{% macro icon(name) %}<svg class="ic"><use href="#{{ name }}"/></svg>{% endmacro %}
+{% macro cat_icon(name) %}{% set m = {'Bakery':'c-bakery','Dairy':'c-dairy','Fresh Produce':'c-produce','Meat & Fish':'c-meat','Ready Meals':'c-meal','Beverages':'c-drink','Packaged Foods':'i-box'} %}<span class="thumb"><svg class="ic"><use href="#{{ m.get(name, 'i-box') }}"/></svg></span>{% endmacro %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Forecast · {{ p.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ p.name }}</h1><p>{{ p.category_name }} · shelf life {{ p.shelf_life_days }} days · price {{ p.unit_price|money }} · baseline ≈ {{ prof.base|round(1) }} {{ p.unit }}/day</p></div>
+  <a class="btn ghost" href="{{ url_for('inventory') }}">← Inventory</a>
+</div>
+<div class="grid g2">
+  <div class="card"><h2>Demand: last 28 days and next {{ labels|length - 28 }}</h2><div class="chart-box"><canvas id="fc"></canvas></div></div>
+  <div class="card"><h2>Weekday pattern</h2><div class="chart-box"><canvas id="wd"></canvas></div>
+    <p class="muted small">1.0 = average day. The model blends this pattern with the recent 14-day average.</p></div>
+</div>
+
+<div class="card"><h2>What-if markdown simulator</h2>
+{% if batches %}
+  <div class="form-grid"><div><label>Batch</label><select id="wbatch">
+    {% for b in batches %}<option value="{{ b.id }}" data-rem="{{ b.qty_remaining }}">{{ b.batch_code }} · {{ b.qty_remaining }} left · {{ b.days_left }}d to expiry</option>{% endfor %}</select></div>
+    <div><label>Discount: <b id="pctlbl">0</b>%</label><input type="range" id="wpct" min="0" max="60" step="5" value="0"></div></div>
+  <div class="whatif">
+    <div><div class="muted small">Forecast units sold before expiry</div><div class="big" id="sold">-</div></div>
+    <div><div class="muted small">Units still at risk</div><div class="big" id="risk">-</div></div>
+  </div>
+  <div class="bar" style="margin-top:14px"><i id="wbar" style="width:0"></i></div>
+{% else %}<div class="empty">No stock of this product.</div>{% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for("static", filename="js/chart.umd.min.js") }}"></script>
+<script>
+FWZ.chart('fc', c => ({type:'line',data:{labels:{{ labels|tojson }},datasets:[
+  {label:'Actual',data:{{ hist|tojson }},borderColor:c.accent,backgroundColor:c.accent+'26',fill:true,tension:.35,pointRadius:0,borderWidth:3},
+  {label:'Forecast',data:{{ pred|tojson }},borderColor:c.warn,borderDash:[6,4],tension:.35,pointRadius:0,borderWidth:3}]},
+  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{align:'end',labels:{usePointStyle:true,boxWidth:8,boxHeight:8}}},scales:{x:{ticks:{maxTicksLimit:8}}}}}));
+FWZ.chart('wd', c => ({type:'bar',data:{labels:{{ weekdays|tojson }},datasets:[{data:{{ factors|tojson }},backgroundColor:c.accent,borderRadius:8}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0.5}}}}));
+
+const sel=document.getElementById('wbatch'), rng=document.getElementById('wpct');
+async function sim(){
+  if(!sel) return;
+  document.getElementById('pctlbl').textContent=rng.value;
+  const r=await fetch('{{ url_for("api_whatif") }}?batch_id='+sel.value+'&pct='+rng.value); const d=await r.json();
+  document.getElementById('sold').textContent=Math.round(d.proj_sold)+' of '+d.remaining;
+  document.getElementById('risk').textContent=d.at_risk;
+  document.getElementById('risk').style.color=d.at_risk>0?'var(--bad)':'var(--ok)';
+  document.getElementById('wbar').style.width=Math.min(100,d.clear_pct)+'%';
+}
+if(sel){sel.addEventListener('change',sim); rng.addEventListener('input',sim); sim();}
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, cat_icon %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="card banner">
+  <div>
+    <span class="eyebrow">Hello, {{ user_name }} · {{ today|fdate }}</span>
+    <h1>Save food before it expires.</h1>
+    <p>{{ kpi.units_at_risk|num }} units worth {{ kpi.value_at_risk|money }} are forecast to go unsold. Review the AI's suggested discounts and donations.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn" href="{{ url_for('recommendations') }}" style="text-decoration:none">{{ icon('i-bolt') }}Review AI actions</a>
+      <form method="post" action="{{ url_for('scan') }}" style="display:inline"><button class="btn ghost">{{ icon('i-refresh') }}Run AI scan</button></form>
+    </div>
+  </div>
+  <div class="banner-art">{% include "_art_basket.html" %}</div>
+</section>
+
+<div class="grid kpis">
+  <div class="card kpi bad"><span class="chip">{{ icon('i-alert') }}</span><div class="label">Stock value at risk</div><div class="value">{{ kpi.value_at_risk|money }}</div>
+    <div class="sub">{{ kpi.units_at_risk|num }} units may expire unsold</div></div>
+  <div class="card kpi warn"><span class="chip">{{ icon('i-clock') }}</span><div class="label">Expiring ≤ 3 days</div><div class="value">{{ kpi.expiring_3d }}</div>
+    <div class="sub">of {{ kpi.active_batches }} active batches</div></div>
+  <div class="card kpi"><span class="chip">{{ icon('i-trash') }}</span><div class="label">Waste cost (30d)</div><div class="value">{{ kpi.waste_30d|money }}</div>
+    <div class="sub">written off after expiry</div></div>
+  <div class="card kpi good"><span class="chip">{{ icon('i-heart') }}</span><div class="label">Food donated (30d)</div><div class="value">{{ kpi.kg_donated_30d|num(1) }} kg</div>
+    <div class="sub">rescued from the bin</div></div>
+</div>
+
+<div class="grid g2">
+  <div class="card"><h2>Value at risk by category</h2>
+    {% if cat_labels %}<div class="chart-box"><canvas id="catChart"></canvas></div>
+    {% else %}<div class="empty"><div class="empty-art">{% include "_art_basket.html" %}</div>Nothing at risk right now.</div>{% endif %}</div>
+  <div class="card"><h2>Weekly waste cost (8 weeks)</h2><div class="chart-box"><canvas id="wasteChart"></canvas></div></div>
+</div>
+<div class="grid g2">
+  <div class="card"><h2>Revenue, last 14 days</h2><div class="chart-box"><canvas id="salesChart"></canvas></div></div>
+  <div class="card"><h2>Most urgent batches</h2>
+    {% if top %}<div class="table-wrap"><table>
+      <tr><th>Product</th><th>Expires</th><th class="num">At risk</th><th>AI says</th></tr>
+      {% for b in top %}<tr>
+        <td><div class="prod">{{ cat_icon(b.category_name) }}<div><a href="{{ url_for('forecast_page', pid=b.product_id) }}">{{ b.product_name }}</a><div class="muted small">{{ b.batch_code }}</div></div></div></td>
+        <td>{% if b.days_left<=1 %}<span class="pill bad">{{ 'today' if b.days_left==0 else '1 day' }}</span>
+            {% elif b.days_left<=3 %}<span class="pill warn">{{ b.days_left }} days</span>
+            {% else %}<span class="pill grey">{{ b.days_left }} days</span>{% endif %}</td>
+        <td class="num">{{ b.at_risk }} / {{ b.qty_remaining }}</td>
+        <td>{% if b.rec %}<span class="pill {{ 'info' if b.rec.action_type=='discount' else 'ok' if b.rec.action_type=='donate' else 'warn' }}">
+          {{ b.rec.action_type|capitalize }}{% if b.rec.discount_pct %} {{ b.rec.discount_pct|int }}%{% endif %}</span>{% endif %}</td>
+      </tr>{% endfor %}
+    </table></div>
+    <p style="margin:14px 0 0"><a href="{{ url_for('recommendations') }}">See all AI actions →</a></p>
+    {% else %}<div class="empty">All stock is on track to sell.</div>{% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for("static", filename="js/chart.umd.min.js") }}"></script>
+<script>
+{% if cat_labels %}
+FWZ.chart('catChart', c => ({type:'doughnut',
+  data:{labels:{{ cat_labels|tojson }}, datasets:[{data:{{ cat_values|tojson }}, backgroundColor:c.series.concat([c.text]), borderColor:c.surface, borderWidth:3}]},
+  options:{responsive:true, maintainAspectRatio:false, cutout:'64%', plugins:{legend:{position:'right', labels:{boxWidth:12, usePointStyle:true}}}}}));
+{% endif %}
+FWZ.chart('wasteChart', c => ({type:'bar',
+  data:{labels:{{ week_labels|tojson }}, datasets:[{data:{{ week_values|tojson }}, backgroundColor:c.accent, borderRadius:8, maxBarThickness:36}]},
+  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}}));
+FWZ.chart('salesChart', c => ({type:'line',
+  data:{labels:{{ sales_labels|tojson }}, datasets:[{data:{{ sales_values|tojson }}, borderColor:c.accent, backgroundColor:c.accent+'26', fill:true, tension:.38, pointRadius:0, pointHoverRadius:5, borderWidth:3}]},
+  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}}));
+</script>
+{% endblock %}

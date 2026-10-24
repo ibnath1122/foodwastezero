@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Receive batch{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Receive batch</h1><p>Log a new delivery. The AI re-scores risk immediately.</p></div></div>
+<form method="post" class="card" style="max-width:760px">
+  <div class="form-grid">
+    <div><label>Product</label>
+      <select name="product_id" id="product" required>
+        {% for p in products %}<option value="{{ p.id }}" data-life="{{ p.shelf_life_days }}" {{ 'selected' if form.get('product_id')|string==p.id|string }}>{{ p.name }} ({{ p.unit }})</option>{% endfor %}
+      </select></div>
+    <div><label>Quantity</label><input type="number" name="quantity" min="1" value="{{ form.get('quantity','') }}" required></div>
+    <div><label>Delivered on</label><input type="date" name="received_on" id="received" value="{{ form.get('received_on', today.isoformat()) }}" required></div>
+    <div><label>Expires on</label><input type="date" name="expires_on" id="expires" value="{{ form.get('expires_on','') }}" required>
+      <div class="muted small">Auto-filled from the product's shelf life; edit if the label says otherwise.</div></div>
+  </div>
+  <button class="btn">Save batch</button> <a class="btn ghost" href="{{ url_for('inventory') }}">Cancel</a>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+const prod = document.getElementById('product'), rec = document.getElementById('received'), exp = document.getElementById('expires');
+function fill(){
+  const life = parseInt(prod.selectedOptions[0].dataset.life || 7);
+  const d = new Date(rec.value || new Date()); d.setDate(d.getDate() + life);
+  exp.value = d.toISOString().slice(0,10);
+}
+prod.addEventListener('change', fill); rec.addEventListener('change', fill);
+if(!exp.value) fill();
+</script>
+{% endblock %}

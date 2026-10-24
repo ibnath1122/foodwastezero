@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Sales{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Sales</h1><p>Record a sale. Stock is taken from the batch expiring soonest (FIFO) at its current markdown.</p></div></div>
+<form method="post" class="card filters">
+  <div style="flex:2"><label>Product</label><select name="product_id" required>
+    {% for p in products %}<option value="{{ p.id }}">{{ p.name }} · {{ p.unit_price|money }}</option>{% endfor %}</select></div>
+  <div><label>Quantity</label><input type="number" name="quantity" min="1" value="1" required></div>
+  <div><label>Date</label><input type="date" name="sold_on" value="{{ today.isoformat() }}" required></div>
+  <button class="btn">Record sale</button>
+</form>
+<div class="card table-wrap" data-enhance data-limit="10" data-csv="sales" data-search="Search sales…" data-filters="disc:Price"><h2>Latest 30 sales</h2><table>
+  <tr><th>Date</th><th>Product</th><th class="num">Qty</th><th class="num">Unit price</th><th>Discount</th><th class="num">Total</th></tr>
+  {% for s in history %}<tr data-f-disc="{{ 'Discounted' if s.discount_pct else 'Full price' }}">
+    <td data-sort="{{ s.sold_on.isoformat() }}">{{ s.sold_on|fdate }}</td><td>{{ s.product_name }}</td><td class="num">{{ s.quantity }}</td>
+    <td class="num">{{ s.unit_price|money }}</td>
+    <td>{% if s.discount_pct %}<span class="pill info">-{{ s.discount_pct|int }}%</span>{% else %}<span class="muted">-</span>{% endif %}</td>
+    <td class="num">{{ (s.quantity * s.unit_price)|money }}</td>
+  </tr>{% endfor %}
+</table></div>
+{% endblock %}

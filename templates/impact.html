@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Impact Report{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Impact Report</h1><p>Last 30 days: what waste cost you, and what you rescued.</p></div></div>
+<div class="grid kpis">
+  <div class="card kpi bad"><div class="label">Waste cost</div><div class="value">{{ waste_now|money }}</div>
+    <div class="sub">{% if change is none %}no prior-period data{% elif change<=0 %}{{ -change }}% lower than previous 30 days{% else %}{{ change }}% higher than previous 30 days{% endif %}</div></div>
+  <div class="card kpi"><div class="label">Food wasted</div><div class="value">{{ kg_wasted|num(1) }} kg</div><div class="sub">expired unsold</div></div>
+  <div class="card kpi good"><div class="label">Donated</div><div class="value">{{ don.kg|num(1) }} kg</div><div class="sub">{{ don.n }} donations · ≈ {{ don.meals }} meals</div></div>
+  <div class="card kpi good"><div class="label">CO₂e avoided</div><div class="value">{{ co2 }} kg</div><div class="sub">from donated food</div></div>
+  <div class="card kpi"><div class="label">Markdown sales</div><div class="value">{{ disc.rev|money }}</div><div class="sub">{{ disc.units|num }} units sold at a discount</div></div>
+</div>
+<div class="grid g2">
+  <div class="card"><h2>Waste cost by category</h2>
+    {% if by_cat %}<div class="chart-box"><canvas id="catChart"></canvas></div>{% else %}<div class="empty">No waste logged.</div>{% endif %}</div>
+  <div class="card table-wrap"><h2>Top wasted products</h2><table>
+    <tr><th>Product</th><th class="num">Kg</th><th class="num">Loss</th></tr>
+    {% for t in top_waste %}<tr><td>{{ t.name }}</td><td class="num">{{ t.kg|num(1) }}</td><td class="num">{{ t.loss|money }}</td></tr>
+    {% else %}<tr><td colspan="3" class="empty">Nothing yet.</td></tr>{% endfor %}
+  </table></div>
+</div>
+<p class="muted small">Estimates: {{ '%.1f'|format(2.5) }} kg CO₂e avoided per kg donated; 0.4 kg of food per meal. Constants are editable in config.py.</p>
+{% endblock %}
+{% block scripts %}
+{% if by_cat %}
+<script src="{{ url_for("static", filename="js/chart.umd.min.js") }}"></script>
+<script>
+FWZ.chart('catChart', c => ({type:'bar',
+  data:{labels:{{ by_cat|map(attribute='name')|list|tojson }},datasets:[{data:{{ by_cat|map(attribute='loss')|map('round')|list|tojson }},backgroundColor:c.accent,borderRadius:8,maxBarThickness:28}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}}));
+</script>
+{% endif %}
+{% endblock %}

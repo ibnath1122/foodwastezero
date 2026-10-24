@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Log donation{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Log donation</h1><p>Stock is deducted from the batch and meals are estimated from weight.</p></div></div>
+<form method="post" class="card" style="max-width:760px">
+  <input type="hidden" name="action_id" value="{{ action_id }}">
+  <div class="form-grid">
+    <div style="grid-column:1/-1"><label>Batch</label><select name="batch_id" id="batch" required>
+      {% for b in batches %}<option value="{{ b.id }}" data-max="{{ b.qty_remaining }}" data-kg="{{ b.kg_per_unit }}" {{ 'selected' if sel_batch==b.id }}>
+        {{ b.product_name }} · {{ b.batch_code }} · {{ b.qty_remaining }} {{ b.unit }} left · exp {{ b.expires_on|fdate }}</option>{% endfor %}</select></div>
+    <div><label>Partner</label><select name="partner_id" required>{% for p in partners %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></div>
+    <div><label>Quantity</label><input type="number" name="quantity" id="qty" min="1" value="{{ qty }}" required></div>
+    <div><label>Date</label><input type="date" name="donated_on" value="{{ today.isoformat() }}" required></div>
+    <div><label>Estimated impact</label><div class="big" id="impact">-</div></div>
+  </div>
+  <button class="btn">Save donation</button> <a class="btn ghost" href="{{ url_for('donations') }}">Cancel</a>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+const batch = document.getElementById('batch'), qty = document.getElementById('qty'), out = document.getElementById('impact');
+function upd(){
+  const o = batch.selectedOptions[0]; if(!o) return;
+  qty.max = o.dataset.max;
+  const kg = (parseFloat(qty.value)||0) * parseFloat(o.dataset.kg);
+  out.textContent = kg.toFixed(1) + ' kg ≈ ' + Math.ceil(kg / 0.4) + ' meals';
+}
+batch.addEventListener('change', upd); qty.addEventListener('input', upd); upd();
+</script>
+{% endblock %}

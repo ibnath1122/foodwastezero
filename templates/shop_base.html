@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Shop{% endblock %} · FoodWasteZero</title>
+{% include "_boot.html" %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shop.css') }}">
+</head>
+<body class="shop">
+{% include "_icons.html" %}
+{% macro art(cat, p=None) %}{% set im = product_image(p.id, p.sku) if p else None %}{% if im %}<img class="prod {{ 'photo' if im.photo }}" src="{{ im.url }}" alt="{{ p.name }}" loading="lazy">{% else %}{% set m = {'Bakery':'c-bakery','Dairy':'c-dairy','Fresh Produce':'c-produce','Meat & Fish':'c-meat','Ready Meals':'c-meal','Beverages':'c-drink','Packaged Foods':'i-box'} %}<svg class="ic"><use href="#{{ m.get(cat, 'i-box') }}"/></svg>{% endif %}{% endmacro %}
+<header class="top">
+  <div class="wrap s-bar">
+    <a class="brand" href="{{ url_for('shop') }}"><span class="logo"><svg class="ic"><use href="#i-leaf"/></svg></span><span>FoodWasteZero<small>Fresh · Fair · Zero waste</small></span></a>
+    <nav>
+      <a href="{{ url_for('shop') }}">All products</a>
+      <a href="{{ url_for('shop', type='deal') }}">Rescue deals</a>
+      <a href="{{ url_for('shop', type='last') }}">Last chance</a>
+    </nav>
+    <div class="s-tools">
+      <button class="icon-btn" data-toggle-theme aria-label="Switch light or dark mode"><svg class="ic moon"><use href="#i-moon"/></svg><svg class="ic sun"><use href="#i-sun"/></svg></button>
+      <a class="staff" href="{{ url_for('dashboard') if session.get('uid') else url_for('login') }}">{{ 'Dashboard' if session.get('uid') else 'Staff login' }}</a>
+    </div>
+  </div>
+</header>
+{% block content %}{% endblock %}
+<footer><div class="wrap">Prices and stock update live from the store's inventory. Discounted items are good to eat — we just want them eaten before their best-before date. <span class="muted">Visit the shop to buy.</span></div></footer>
+<div class="fwz-chat" id="shopchat" data-endpoint="{{ url_for('api_shop_chat') }}"
+     data-hello="Hi! Ask me the price or availability of any product, or what's on discount today.">
+  <div class="panel" hidden>
+    <div class="head"><b>Shop assistant</b><button type="button" class="x" aria-label="Close chat">×</button></div>
+    <div class="chips">{% for q in ["What's on discount?", "Is milk available?", "Price of eggs", "What expires soon?"] %}<button type="button" class="chip" data-q="{{ q }}">{{ q }}</button>{% endfor %}</div>
+    <div class="chat-log"></div>
+    <form class="chat-form"><input placeholder="Ask about a product…" autocomplete="off" maxlength="300"><button class="s-btn">Send</button></form>
+  </div>
+  <button type="button" class="fab" aria-label="Open chat assistant"><svg class="ic"><use href="#i-bolt"/></svg>Ask us</button>
+</div>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script>(function(){var r=document.getElementById('shopchat'),p=r.querySelector('.panel');FWZChat(r);
+r.querySelector('.fab').onclick=function(){p.hidden=!p.hidden;if(!p.hidden)r.querySelector('input').focus()};
+r.querySelector('.x').onclick=function(){p.hidden=true}})();</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+{% extends "shop_base.html" %}
+{% block title %}{{ p.name }}{% endblock %}
+{% block content %}
+<div class="wrap detail">
+  <a class="back" href="{{ url_for('shop') }}">← All products</a>
+  <div class="d-grid">
+    <div class="pic big" data-cat="{{ p.category }}">{{ art(p.category, p) }}{% if p.pct %}<span class="off">-{{ p.pct|int }}%</span>{% endif %}</div>
+    <div>
+      <span class="cat">{{ p.category }}</span>
+      <h1>{{ p.name }}</h1>
+      <div class="price lg">
+        <b {% if p.pct %}class="sale"{% endif %}>{{ currency }}{{ p.price|num }}</b>
+        {% if p.pct %}<s>{{ currency }}{{ p.base|num }}</s><span class="pill ok">Save {{ currency }}{{ p.save|num }} · {{ p.pct|int }}% off</span>{% endif %}
+        <span class="unit">per {{ p.unit }}</span>
+      </div>
+      {% if p.pct %}<p class="note">This is a <b>rescue deal</b>: it is still fresh and safe to eat, but it is close to its best-before date, so we have marked it down to get it eaten instead of binned.</p>
+      {% else %}<p class="note">Regular price. Fresh stock with plenty of shelf life left.</p>{% endif %}
+
+      <dl class="facts">
+        <div><dt>Best before</dt><dd>{{ p.expires|fdate }}{% if p.days_left<=1 %} <span class="pill bad">{{ 'today' if p.days_left==0 else 'tomorrow' }}</span>{% endif %}</dd></div>
+        <div><dt>Availability</dt><dd>{{ p.qty }} {{ p.unit }} in stock</dd></div>
+        <div><dt>Typical shelf life</dt><dd>{{ p.shelf_life }} days</dd></div>
+        {% if p.unit != 'kg' %}<div><dt>Weight per {{ p.unit }}</dt><dd>~{{ p.kg|num(2) }} kg</dd></div>{% endif %}
+        <div><dt>Product code</dt><dd>{{ p.sku }}</dd></div>
+        {% if p.pct %}<div><dt>Impact</dt><dd>Buying one saves ~{{ co2|num(1) }} kg CO₂e</dd></div>{% endif %}
+      </dl>
+    </div>
+  </div>
+
+  <h2>Available lots</h2>
+  <div class="lots">
+    <table>
+      <tr><th>Best before</th><th>Time left</th><th>Price</th><th>Discount</th><th class="r">In stock</th></tr>
+      {% for l in p.lots %}<tr>
+        <td>{{ l.expires|fdate }}</td>
+        <td>{% if l.days_left==0 %}Today{% elif l.days_left==1 %}Tomorrow{% else %}{{ l.days_left }} days{% endif %}</td>
+        <td><b>{{ currency }}{{ l.price|num }}</b>{% if l.pct %} <s>{{ currency }}{{ p.base|num }}</s>{% endif %}</td>
+        <td>{% if l.pct %}<span class="pill ok">{{ l.pct|int }}% off</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td class="r">{{ l.qty }}</td></tr>{% endfor %}
+    </table>
+  </div>
+
+  {% if related %}
+  <h2>More in {{ p.category }}</h2>
+  <div class="s-grid">
+    {% for r in related %}
+    <a class="s-card" href="{{ url_for('shop_product', pid=r.id) }}">
+      <div class="pic" data-cat="{{ r.category }}">{{ art(r.category, r) }}{% if r.pct %}<span class="off">-{{ r.pct|int }}%</span>{% endif %}</div>
+      <div class="body"><h3>{{ r.name }}</h3>
+        <div class="price"><b>{{ currency }}{{ r.price|num }}</b>{% if r.pct %}<s>{{ currency }}{{ r.base|num }}</s>{% endif %}<span class="unit">/ {{ r.unit }}</span></div></div>
+    </a>{% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

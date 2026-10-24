@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, cat_icon %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Products</h1><p>The catalogue the forecast model learns from.</p></div>
+  <a class="btn" href="{{ url_for('product_new') }}" style="text-decoration:none">{{ icon('i-plus') }}New product</a>
+</div>
+<div class="card table-wrap" data-enhance data-limit="12" data-csv="products" data-search="Search name or SKU…" data-filters="cat:Category,active:Status"><table>
+  <tr><th>SKU</th><th>Product</th><th>Category</th><th class="num">Cost</th><th class="num">Price</th><th class="num">Margin</th><th class="num">Shelf life</th><th class="num">In stock</th><th data-nosort></th></tr>
+  {% for r in rows %}<tr data-f-cat="{{ r.category_name }}" data-f-active="{{ 'Active' if r.active else 'Inactive' }}">
+    <td class="muted small">{{ r.sku }}</td>
+    <td><div class="prod">{{ cat_icon(r.category_name) }}<b>{{ r.name }}</b> {% if not r.active %}<span class="pill grey">inactive</span>{% endif %}</div></td>
+    <td>{{ r.category_name }}</td>
+    <td class="num">{{ r.unit_cost|money }}</td><td class="num">{{ r.unit_price|money }}</td>
+    <td class="num">{{ ((r.unit_price - r.unit_cost) / r.unit_price * 100)|round|int }}%</td>
+    <td class="num">{{ r.shelf_life_days }} d</td><td class="num">{{ r.stock }} {{ r.unit }}</td>
+    <td class="right"><a class="btn ghost sm" href="{{ url_for('product_edit', pid=r.id) }}">Edit</a></td>
+  </tr>{% endfor %}
+</table></div>
+{% endblock %}

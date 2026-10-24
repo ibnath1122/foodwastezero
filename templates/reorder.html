@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, cat_icon %}
+{% block title %}Smart Reorder{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Smart Reorder</h1><p>Stop overstocking at the source: order only what the forecast says will sell before it expires.</p></div>
+</div>
+<div class="grid kpis">
+  <div class="card kpi warn"><span class="chip">{{ icon('i-truck') }}</span><div class="label">Products to order</div><div class="value">{{ kpi.to_order }}</div><div class="sub">{{ kpi.out }} completely out of stock</div></div>
+  <div class="card kpi"><span class="chip">{{ icon('i-tag') }}</span><div class="label">Estimated order cost</div><div class="value">{{ kpi.order_cost|money }}</div><div class="sub">at current unit cost</div></div>
+  <div class="card kpi bad"><span class="chip">{{ icon('i-alert') }}</span><div class="label">Overstocked products</div><div class="value">{{ kpi.over }}</div><div class="sub">do not reorder these</div></div>
+</div>
+<div class="card table-wrap" data-enhance data-limit="12" data-csv="purchase-list" data-search="Search product or SKU…" data-filters="status:Status,cat:Category">
+<table>
+  <tr><th>Product</th><th class="num">In stock</th><th class="num">Cover (days)</th><th class="num">Need</th><th>Status</th><th class="num">Order qty</th><th class="num">Cost</th><th data-nosort></th></tr>
+  {% for r in plan %}
+  <tr data-f-status="{{ {'out':'Out of stock','reorder':'Reorder','overstock':'Overstocked','ok':'OK'}[r.status] }}" data-f-cat="{{ r.category_name }}">
+    <td><div class="prod">{{ cat_icon(r.category_name) }}<div><b>{{ r.name }}</b><div class="muted small">{{ r.category_name }} · {{ r.sku }}</div></div></div></td>
+    <td class="num">{{ r.stock }} {{ r.unit }}<div class="muted small">{{ r.daily }} / day</div></td>
+    <td class="num">{{ r.cover if r.cover is not none else '-' }}</td>
+    <td class="num">{{ r.need }} <span class="muted small">/ {{ r.horizon }}d</span></td>
+    <td>{% if r.status=='out' %}<span class="pill bad">Out of stock</span>{% elif r.status=='reorder' %}<span class="pill warn">Reorder</span>
+        {% elif r.status=='overstock' %}<span class="pill info">Overstocked +{{ r.excess }}</span>{% else %}<span class="pill ok">OK</span>{% endif %}</td>
+    <td class="num"><b>{{ r.suggest if r.suggest else '-' }}</b></td>
+    <td class="num">{{ r.order_cost|money if r.suggest else '-' }}</td>
+    <td class="right"><a class="btn ghost sm" href="{{ url_for('forecast_page', pid=r.id) }}">Forecast</a></td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+<p class="muted small" style="margin-top:14px">Suggested order = forecast demand over the next few days (up to the shelf life) × {{ '%.2f'|format(1.15) }} safety margin − stock already on hand. Use <b>CSV</b> to download your purchase list.</p>
+{% endblock %}
