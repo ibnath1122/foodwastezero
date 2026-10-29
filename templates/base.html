@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}FoodWasteZero{% endblock %} · FoodWasteZero AI</title>
+<title>{% block title %}অন্নান্তর{% endblock %} · অন্নান্তর (Onnontor)</title>
 {% include "_boot.html" %}
 </head>
 <body>
@@ -11,14 +11,14 @@
 {% from "_macros.html" import icon %}
 <div class="shell">
   <aside class="sidebar">
-    <div class="brand"><div class="logo"><svg class="ic"><use href="#i-leaf"/></svg></div><div>FoodWasteZero<small>FoodSphere AI</small></div></div>
+    <div class="brand"><div class="logo"><svg class="ic"><use href="#i-leaf"/></svg></div><div>অন্নান্তর<small>Transforming food from surplus to sustenance</small></div></div>
     <nav class="nav">
       {% set ep = request.endpoint %}
       <a href="{{ url_for('dashboard') }}" class="{{ 'active' if ep=='dashboard' }}">{{ icon('i-dash') }}Dashboard</a>
-      <a href="{{ url_for('recommendations') }}" class="{{ 'active' if ep=='recommendations' }}">{{ icon('i-bolt') }}AI Actions
+      <a href="{{ url_for('recommendations') }}" class="{{ 'active' if ep=='recommendations' }}">{{ icon('i-bolt') }}Actions
         {% if pending_count %}<span class="badge">{{ pending_count }}</span>{% endif %}</a>
-      <a href="{{ url_for('assistant') }}" class="{{ 'active' if ep=='assistant' }}">{{ icon('i-bolt') }}Ask AI</a>
-      <a href="{{ url_for('ai_insights') }}" class="{{ 'active' if ep=='ai_insights' }}">{{ icon('i-bolt') }}AI Insights</a>
+      <a href="{{ url_for('assistant') }}" class="{{ 'active' if ep=='assistant' }}">{{ icon('i-bolt') }}Assistant</a>
+      <a href="{{ url_for('ai_insights') }}" class="{{ 'active' if ep=='ai_insights' }}">{{ icon('i-bolt') }}Insights</a>
       <a href="{{ url_for('inventory') }}" class="{{ 'active' if ep in ('inventory','batch_new','forecast_page') }}">{{ icon('i-box') }}Inventory</a>
       <a href="{{ url_for('reorder') }}" class="{{ 'active' if ep=='reorder' }}">{{ icon('i-truck') }}Smart Reorder</a>
       <a href="{{ url_for('sales') }}" class="{{ 'active' if ep=='sales' }}">{{ icon('i-cart') }}Sales</a>

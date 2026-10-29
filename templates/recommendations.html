@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% from "_macros.html" import icon, cat_icon, pthumb %}
-{% block title %}AI Actions{% endblock %}
+{% block title %}Actions{% endblock %}
 {% block content %}
 <div class="page-head">
-  <div><h1>AI Actions</h1><p>Recommendations to save stock before it expires. Apply a markdown, donate, or dismiss.</p></div>
+  <div><h1>Actions</h1><p>Recommendations to save stock before it expires. Apply a markdown, donate, or dismiss.</p></div>
   <div class="stack">
     {% set n_disc = pending|selectattr('action_type','in',['discount','markdown'])|list|length %}
     {% if n_disc %}<form method="post" action="{{ url_for('apply_all_discounts') }}" onsubmit="return confirm('Apply all {{ n_disc }} suggested markdowns now?')"><button class="btn">{{ icon('i-check') }}Apply all markdowns ({{ n_disc }})</button></form>{% endif %}
-    <form method="post" action="{{ url_for('scan') }}"><button class="btn ghost">{{ icon('i-refresh') }}Re-run AI scan</button></form>
+    <form method="post" action="{{ url_for('scan') }}"><button class="btn ghost">{{ icon('i-refresh') }}Re-run scan</button></form>
   </div>
 </div>
 
