@@ -224,3 +224,31 @@ th.sortable.desc::after{content:"↓";opacity:1;color:var(--accent)}
 .lang-sw{display:inline-flex;border:1px solid var(--line,rgba(0,0,0,.15));border-radius:999px;overflow:hidden;font-size:.82rem}
 .lang-sw a{padding:4px 10px;color:inherit;text-decoration:none;opacity:.7}
 .lang-sw a.on{background:var(--accent,#2f7d4f);color:#fff;opacity:1}
+
+/* Google Translate integration */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+body {
+  top: 0px !important;
+  position: static !important;
+}
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+}
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+#google_translate_element {
+  display: none !important;
+}
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}

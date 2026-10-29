@@ -63,6 +63,15 @@
     if (a) {
       var x = a.getAttribute('data-accent-set');
       root.setAttribute('data-accent', x); save('fwz-accent', x); refresh();
+      return;
+    }
+    var langLink = e.target.closest('.lang-sw a');
+    if (langLink) {
+      var lang = langLink.getAttribute('lang');
+      if (lang) {
+        document.cookie = 'googtrans=/en/' + lang + '; path=/; max-age=31536000';
+        document.cookie = 'fwz_lang=' + lang + '; path=/; max-age=31536000';
+      }
     }
   });
 })();

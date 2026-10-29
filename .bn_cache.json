@@ -1,0 +1,23 @@
+{
+  "hello": "হ্যালো",
+  ".env": ".env",
+  "CO₂ avoided": "CO₂ এড়ানো হয়েছে",
+  "CO₂e avoided": "CO₂e এড়ানো হয়েছে৷",
+  "CSV": "CSV",
+  "EN": "EN",
+  "FoodWasteZero": "ফুড ওয়েস্টজিরো",
+  "Forecasts what will expire unsold and tells you whether to discount, donate or mark down.": "পূর্বাভাস কি অবিক্রিত মেয়াদ শেষ হবে এবং আপনাকে বলে যে ডিসকাউন্ট, দান বা মার্ক ডাউন।",
+  "GEMINI_API_KEY": "GEMINI_API_KEY",
+  "Product photo (JPG / PNG / WEBP — shown in the shop and in the tables)": "পণ্যের ছবি (JPG/PNG/WEBP — দোকানে এবং টেবিলে দেখানো হয়েছে)",
+  "Record a sale. Stock is taken from the batch expiring soonest (FIFO) at its current markdown.": "একটি বিক্রয় রেকর্ড. স্টকটি তার বর্তমান মার্কডাউনে ব্যাচের মেয়াদ দ্রুততম (FIFO) থেকে নেওয়া হয়।",
+  "Transforming food from surplus to sustenance": "খাদ্য উদ্বৃত্ত থেকে জীবিকা রূপান্তর",
+  "admin": "অ্যাডমিন",
+  "admin123": "অ্যাডমিন123",
+  "500 Internal Server Error": "500 অভ্যন্তরীণ সার্ভার ত্রুটি৷",
+  "Internal Server Error": "অভ্যন্তরীণ সার্ভার ত্রুটি৷",
+  "The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.": "সার্ভারটি একটি অভ্যন্তরীণ ত্রুটির সম্মুখীন হয়েছে এবং আপনার অনুরোধটি সম্পূর্ণ করতে পারেনি৷ হয় সার্ভারটি ওভারলোড হয়েছে বা অ্যাপ্লিকেশনটিতে একটি ত্রুটি রয়েছে৷",
+  "R": "আর",
+  "S": "এস",
+  "B": "খ",
+  "G": "জি"
+}

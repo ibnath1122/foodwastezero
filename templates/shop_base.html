@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}Shop{% endblock %} · FoodWasteZero</title>
+<title>{% block title %}Shop{% endblock %} · {{ 'অন্নান্তর' if lang=='bn' else 'Onnontor' }}</title>
 {% include "_boot.html" %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/shop.css') }}">
 </head>
@@ -12,7 +12,7 @@
 {% macro art(cat, p=None) %}{% set im = product_image(p.id, p.sku) if p else None %}{% if im %}<img class="prod photo" src="{{ im.url }}" alt="{{ p.name }}" loading="lazy">{% else %}<div class="nophoto"><b>{{ p.name if p else cat }}</b><small>{{ cat }}</small></div>{% endif %}{% endmacro %}
 <header class="top">
   <div class="wrap s-bar">
-    <a class="brand" href="{{ url_for('shop') }}"><span class="logo"><svg class="ic"><use href="#i-leaf"/></svg></span><span>FoodWasteZero<small>Fresh · Fair · Zero waste</small></span></a>
+    <a class="brand" href="{{ url_for('shop') }}"><span class="logo"><svg class="ic"><use href="#i-leaf"/></svg></span><span>{{ 'অন্নান্তর' if lang=='bn' else 'Onnontor' }}<small>Transforming food from surplus to sustenance</small></span></a>
     <nav>
       <a href="{{ url_for('shop') }}">All products</a>
       <a href="{{ url_for('shop', type='deal') }}">Rescue deals</a>

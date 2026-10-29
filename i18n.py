@@ -15,39 +15,57 @@ import os
 import pickle
 import logging
 
-try:
-    from deep_translator import GoogleTranslator as _GT
-    _gt_available = True
-except ImportError:
-    _gt_available = False
+import urllib.request
+import urllib.parse
 
 # Cache file to avoid hammering Google on every request
-_CACHE_PATH = os.path.join(os.path.dirname(__file__), ".bn_cache.pkl")
-try:
-    with open(_CACHE_PATH, "rb") as _f:
-        _GT_CACHE: dict = pickle.load(_f)
-except Exception:
-    _GT_CACHE: dict = {}
+_CACHE_PATH = os.path.join(os.path.dirname(__file__), ".bn_cache.json")
+_GT_CACHE: dict = {}
 
-
-def _google_translate(text: str) -> str:
-    """Translate English text to Bengali via Google Translate. Returns original on failure."""
-    if not _gt_available or not text or not text.strip():
-        return text
-    if text in _GT_CACHE:
-        return _GT_CACHE[text]
-    try:
-        result = _GT(source="en", target="bn").translate(text)
-        if result and result != text:
-            _GT_CACHE[text] = result
+def _load_cache():
+    global _GT_CACHE
+    paths = [_CACHE_PATH, "/tmp/.bn_cache.json"]
+    for p in paths:
+        if os.path.exists(p):
             try:
-                with open(_CACHE_PATH, "wb") as _f:
-                    pickle.dump(_GT_CACHE, _f)
+                with open(p, "r", encoding="utf-8") as _f:
+                    _GT_CACHE.update(json.load(_f))
             except Exception:
                 pass
-            return result
+
+_load_cache()
+
+def _save_cache():
+    paths = [_CACHE_PATH, "/tmp/.bn_cache.json"]
+    for p in paths:
+        try:
+            with open(p, "w", encoding="utf-8") as _f:
+                json.dump(_GT_CACHE, _f, ensure_ascii=False, indent=2)
+            return
+        except Exception:
+            continue
+
+def _google_translate(text: str) -> str:
+    """Translate English text to Bengali via Google Translate API with caching."""
+    if not text or not text.strip() or not re.search(r"[A-Za-z]", text):
+        return text
+    clean = text.strip()
+    if clean in _GT_CACHE:
+        return _GT_CACHE[clean]
+    try:
+        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=bn&dt=t&q=" + urllib.parse.quote(clean)
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        })
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            translated = "".join(chunk[0] for chunk in data[0] if chunk and chunk[0])
+            if translated and translated != clean:
+                _GT_CACHE[clean] = translated
+                _save_cache()
+                return translated
     except Exception as e:
-        logging.getLogger(__name__).debug("Google Translate failed: %s", e)
+        logging.getLogger(__name__).debug("Google Translate API failed: %s", e)
     return text
 
 LANGS = ("en", "bn")
@@ -109,6 +127,8 @@ EXACT = {
     "Green theme": "সবুজ থিম", "Mango theme": "আম থিম", "Plum theme": "বেগুনি থিম", "Purple theme": "বেগুনি থিম",
     "Staff login": "স্টাফ লগইন", "All products": "সব পণ্য", "Rescue deals": "রেসকিউ অফার", "Last chance": "শেষ সুযোগ",
     "Fresh · Fair · Zero waste": "তাজা · ন্যায্য · শূন্য অপচয়", "FoodSphere AI": "ফুডস্ফিয়ার এআই",
+    "Onnontor": "অন্নান্তর", "Dashboard - Onnontor": "ড্যাশবোর্ড - অন্নান্তর",
+    "Transforming food from surplus to sustenance": "খাদ্য উদ্বৃত্ত থেকে জীবিকা রূপান্তর",
     # --- login
     "Welcome back": "স্বাগতম", "Username": "ইউজারনেম", "Password": "পাসওয়ার্ড", "Sign in": "সাইন ইন", "Demo login:": "ডেমো লগইন:",
     "Predict what won't sell. Rescue it before it expires.": "যা বিক্রি হবে না তা আগেই জানুন। মেয়াদ শেষ হওয়ার আগে বাঁচান।",

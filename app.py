@@ -86,6 +86,7 @@ def set_language(code):
         back = url_for("shop")
     resp = redirect(back)
     resp.set_cookie("fwz_lang", code, max_age=365 * 24 * 3600, samesite="Lax")
+    resp.set_cookie("googtrans", f"/en/{code}", max_age=365 * 24 * 3600, path="/", samesite="Lax")
     return resp
 
 
