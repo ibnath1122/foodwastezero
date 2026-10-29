@@ -11,6 +11,44 @@ Product names live in PRODUCT_BN; a product that is not listed there simply stay
 import html as _html
 import json
 import re
+import os
+import pickle
+import logging
+
+try:
+    from deep_translator import GoogleTranslator as _GT
+    _gt_available = True
+except ImportError:
+    _gt_available = False
+
+# Cache file to avoid hammering Google on every request
+_CACHE_PATH = os.path.join(os.path.dirname(__file__), ".bn_cache.pkl")
+try:
+    with open(_CACHE_PATH, "rb") as _f:
+        _GT_CACHE: dict = pickle.load(_f)
+except Exception:
+    _GT_CACHE: dict = {}
+
+
+def _google_translate(text: str) -> str:
+    """Translate English text to Bengali via Google Translate. Returns original on failure."""
+    if not _gt_available or not text or not text.strip():
+        return text
+    if text in _GT_CACHE:
+        return _GT_CACHE[text]
+    try:
+        result = _GT(source="en", target="bn").translate(text)
+        if result and result != text:
+            _GT_CACHE[text] = result
+            try:
+                with open(_CACHE_PATH, "wb") as _f:
+                    pickle.dump(_GT_CACHE, _f)
+            except Exception:
+                pass
+            return result
+    except Exception as e:
+        logging.getLogger(__name__).debug("Google Translate failed: %s", e)
+    return text
 
 LANGS = ("en", "bn")
 
@@ -322,6 +360,11 @@ def tr(text):
         out = " · ".join(tr(p) for p in named.split(" · "))
     if out is None:
         out = named
+        # --- Google Translate fallback for anything not in the dictionary ---
+        if re.search(r"[A-Za-z]", out) and len(out) < 300:
+            gt = _google_translate(out)
+            if gt != out:
+                out = gt
     return lead + bn_digits(_general(out)) + trail
 
 
