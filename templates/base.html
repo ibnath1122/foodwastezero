@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}অন্নান্তর{% endblock %} · অন্নান্তর (Onnontor)</title>
+<title>{% block title %}{{ 'অন্নান্তর' if lang=='bn' else 'Onnontor' }}{% endblock %} · {{ 'অন্নান্তর' if lang=='bn' else 'Onnontor' }}</title>
 {% include "_boot.html" %}
 </head>
 <body>
@@ -11,7 +11,7 @@
 {% from "_macros.html" import icon %}
 <div class="shell">
   <aside class="sidebar">
-    <div class="brand"><div class="logo"><svg class="ic"><use href="#i-leaf"/></svg></div><div>অন্নান্তর<small>Transforming food from surplus to sustenance</small></div></div>
+    <div class="brand"><div class="logo"><svg class="ic"><use href="#i-leaf"/></svg></div><div>{{ 'অন্নান্তর' if lang=='bn' else 'Onnontor' }}<small>Transforming food from surplus to sustenance</small></div></div>
     <nav class="nav">
       {% set ep = request.endpoint %}
       <a href="{{ url_for('dashboard') }}" class="{{ 'active' if ep=='dashboard' }}">{{ icon('i-dash') }}Dashboard</a>

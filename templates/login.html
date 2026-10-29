@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sign in · অন্নান্তর (Onnontor)</title>
+  <title>Sign in · {{ 'অন্নান্তর' if lang=='bn' else 'Onnontor' }}</title>
   {% include "_boot.html" %}
 </head>
 
@@ -32,7 +32,7 @@
         <div class="logo"><svg class="ic">
             <use href="#i-leaf" />
           </svg></div>
-        <div>অন্নান্তর<small>Transforming food from surplus to sustenance</small></div>
+        <div>{{ 'অন্নান্তর' if lang=='bn' else 'Onnontor' }}<small>Transforming food from surplus to sustenance</small></div>
       </div>
       <h1>Welcome back</h1>
       <p class="muted" style="margin:0 0 24px">Predict what won't sell. Rescue it before it expires.</p>
