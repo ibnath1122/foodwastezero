@@ -2,7 +2,11 @@
 (function () {
   var T = window.FWZ_T || function (x) { return x; };
   function esc(s) { return s.replace(/[&<>"]/g, function (c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
-  function fmt(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'); }
+  function fmt(s) {
+    var b = (document.documentElement.lang === 'bn') ? 'অন্নান্তর' : 'Onnontor';
+    s = (s || '').replace(/foodwastezero/gi, b);
+    return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+  }
 
   window.FWZChat = function (root) {
     var url = root.getAttribute('data-endpoint');

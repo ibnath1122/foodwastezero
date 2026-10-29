@@ -116,15 +116,21 @@
     });
     var reset = el('button', 'btn ghost sm', T('Reset')); reset.type = 'button'; reset.hidden = true;
     bar.appendChild(reset);
+
+    var actions = el('div', 'toolbar-actions push');
+    var more = el('button', 'btn ghost sm', T('Show all')); more.type = 'button'; more.hidden = true;
+    actions.appendChild(more);
+    var csv = null;
     if (root.dataset.csv && table) {
-      var csv = el('button', 'btn ghost sm push', icon('i-download') + 'CSV'); csv.type = 'button'; csv.title = T('Download the rows currently matching');
-      csv.addEventListener('click', exportCsv); bar.appendChild(csv);
+      csv = el('button', 'btn ghost sm', icon('i-download') + 'CSV'); csv.type = 'button'; csv.title = T('Download the rows currently matching');
+      csv.addEventListener('click', exportCsv); actions.appendChild(csv);
     }
+    bar.appendChild(actions);
     anchor.parentNode.insertBefore(bar, anchor);
 
     /* footer */
-    var foot = el('div', 'tfoot'); var count = el('span', 'muted small'); var more = el('button', 'btn ghost sm'); more.type = 'button';
-    foot.appendChild(count); foot.appendChild(more);
+    var foot = el('div', 'tfoot'); var count = el('span', 'muted small');
+    foot.appendChild(count);
     if (table) anchor.parentNode.insertBefore(foot, table.nextSibling); else root.appendChild(foot);
     var empty = el('div', 'empty', T('Nothing matches your search or filters.')); empty.hidden = true;
     foot.parentNode.insertBefore(empty, foot);
@@ -142,6 +148,7 @@
       count.textContent = matched.length ? T('Showing ') + N(shown) + T(' of ') + N(matched.length) + (matched.length !== items.length ? T(' (filtered from ') + N(items.length) + ')' : '') : '';
       more.hidden = matched.length <= limit;
       more.textContent = showAll ? T('Show less') : T('Show all (') + N(matched.length) + ')';
+      actions.hidden = more.hidden && (!csv || csv.hidden);
       empty.hidden = matched.length > 0;
       reset.hidden = !(q || Object.keys(fv).some(function (k) { return fv[k]; }));
       if (table) table.style.display = matched.length ? '' : 'none';

@@ -4,6 +4,7 @@ Run:  python app.py   ->   http://127.0.0.1:5000   (login: admin / admin123)
 import math
 import os
 import random
+import re
 from datetime import date, datetime, timedelta
 from functools import wraps
 
@@ -399,6 +400,8 @@ def api_shop_chat():
     reply, err = gemini.chat(chatbots.shop_system(catalog, today()), hist, lang=g.lang)
     if err:
         reply = chatbots.shop_fallback(hist[-1]["text"], catalog, g.lang)
+    if reply:
+        reply = re.sub(r"(?i)foodwastezero", "অন্নান্তর" if g.lang == "bn" else "Onnontor", reply)
     return jsonify({"reply": reply})
 
 
@@ -418,6 +421,8 @@ def api_admin_chat():
     reply, err = gemini.chat(chatbots.admin_system(ctx), hist, lang=g.lang)
     if err:
         reply = chatbots.admin_fallback(ctx, g.lang)
+    if reply:
+        reply = re.sub(r"(?i)foodwastezero", "অন্নান্তর" if g.lang == "bn" else "Onnontor", reply)
     return jsonify({"reply": reply})
 
 
