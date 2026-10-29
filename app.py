@@ -194,7 +194,10 @@ def login():
             session["uid"], session["name"] = u["id"], u["full_name"]
             return redirect(request.args.get("next") or url_for("dashboard"))
         flash("Wrong username or password.", "error")
-    return render_template("login.html")
+    db = get_db()
+    stats = db.one("SELECT COALESCE(SUM(meals),0) AS meals, COALESCE(SUM(kg),0)*2.5 AS co2 FROM donations") or {}
+    return render_template("login.html", stats_meals=int(stats.get("meals") or 0),
+                           stats_co2=round(float(stats.get("co2") or 0), 1))
 
 
 @app.route("/logout")

@@ -17,7 +17,7 @@
     <div class="card" style="margin-bottom:16px"><h2>Partners</h2>
       {% for p in partners %}<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)">
         <div><b>{{ p.name }}</b><div class="muted small">{{ p.kind|replace('_',' ') }} · {{ p.area }} · {{ p.phone }}</div></div>
-        <span class="pill ok">{{ p.meals }} meals</span></div>{% endfor %}
+        <span class="pill {{ 'ok' if p.meals > 0 else 'grey' }}">{{ p.meals ~ ' meals' if p.meals > 0 else 'No donations' }}</span></div>{% endfor %}
     </div>
     <form method="post" action="{{ url_for('partner_new') }}" class="card"><h2>Add partner</h2>
       <div class="form-grid">
