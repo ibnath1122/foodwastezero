@@ -14,7 +14,7 @@
     <div><label>Weight per unit (kg)</label><input type="number" step="0.001" min="0" name="kg_per_unit" value="{{ row.get('kg_per_unit','') }}" required></div>
     <div><label>Shelf life (days)</label><input type="number" min="1" name="shelf_life_days" value="{{ row.get('shelf_life_days','') }}" required></div>
     <div><label>Active</label><select name="active"><option value="1" {{ 'selected' if row.get('active') }}>Yes</option><option value="" {{ '' if row.get('active') else 'selected' }}>No</option></select></div>
-    <div style="grid-column:1/-1"><label>Product photo (optional — replaces the default illustration shown in the shop)</label>
+    <div style="grid-column:1/-1"><label>Product photo (JPG / PNG / WEBP — shown in the shop and in the tables)</label>
       {% set im = product_image(pid, row.get('sku','')) if pid else None %}
       {% if im %}<img src="{{ im.url }}" alt="" style="height:70px;border-radius:12px;display:block;margin-bottom:8px;background:var(--surface-2)">{% endif %}
       <input type="file" name="photo" accept="image/*"></div>

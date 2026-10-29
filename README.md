@@ -73,10 +73,14 @@ live price, rescue-deal discount (set by applying AI Actions), best-before date 
 All / Rescue deals / Regular price / Last chance, category, search and sorting. Each product has a detail page at `/shop/<id>`.
 Staff see a "View public shop" link in the sidebar.
 
-### Product images
-Each seeded product has its own illustration in `static/img/products/<SKU>.svg`. To use a real photo instead, open
-Products → Edit → *Product photo* and upload a JPG/PNG/WEBP (max 5 MB); it is saved as `static/uploads/p<id>.<ext>` and
-replaces the illustration in the shop. Products with neither fall back to their category icon.
+### Product images (real photos only)
+Bundled photos live in `static/img/products/<SKU>.jpg` (credits in `CREDITS.txt`). Upload your own from Products -> Edit ->
+*Product photo* (JPG/PNG/WEBP, max 5 MB). Products without a photo show a plain name tile.
+To download free photos for products that still lack one (needs internet): `pip install Pillow` then `python tools/fetch_photos.py`.
+
+### Bangla (বাংলা)
+Use the **EN | বাংলা** switch (login page, admin sidebar, shop header). Translations live in `i18n.py`; the chatbots and AI Insights
+answer in Bangla too. Set `FWZ_LANG=bn` to start in Bangla. After updating, run `python setup_db.py` once (new product list).
 
 ## Chatbots (Gemini + live data)
 * **Customers** — "Ask us" button on every shop page (`/api/shop-chat`): price, discount, availability, best-before. Public, rate-limited (20 msgs/min per IP).

@@ -6,6 +6,7 @@ from datetime import timedelta
 
 import config
 import gemini
+import i18n
 
 # ---------------------------------------------------------------- customer bot
 def shop_context(catalog, today):
@@ -49,8 +50,46 @@ def _stem(w):
     return w[:-1] if w.endswith("s") and len(w) > 3 else w
 
 
-def shop_fallback(msg, catalog):
+def _bn_tokens(s):
+    return [w for w in re.findall(r"[\u0980-\u09FF]+", s) if len(w) > 1]
+
+
+def shop_fallback_bn(msg, catalog):
+    """Bangla rule-based answer used when Gemini is unreachable."""
+    d = i18n.bn_digits
+    cur = config.CURRENCY
+    if any(k in msg for k in ("ছাড়", "অফার", "সস্তা", "কম দাম", "discount", "offer")):
+        deals = sorted([p for p in catalog if p["pct"] > 0], key=lambda p: -p["pct"])[:6]
+        if deals:
+            return "আজকের সেরা রেসকিউ অফার:\n" + "\n".join(d("• %s — %s%s (%d%% ছাড়, আগের দাম %s%s), মজুত %d" % (
+                i18n.tr(p["name"]), cur, _n(p["price"]), p["pct"], cur, _n(p["base"]), p["qty"])) for p in deals)
+        return "এখন কোনো ছাড়ের পণ্য নেই, তবে শপ পেজের সবকিছু নিয়মিত দামে মজুত আছে।"
+    toks = set(_bn_tokens(msg)) | {_stem(t) for t in _tokens(msg)}
+    hits = []
+    for p in catalog:
+        words = set(_bn_tokens(i18n.tr(p["name"]))) | {_stem(w) for w in _tokens(p["name"])}
+        words |= set(_bn_tokens(i18n.tr(p["category"]))) if not (toks & words) else set()
+        n = len(toks & words)
+        if n:
+            hits.append((n, p))
+    hits.sort(key=lambda x: (-x[0], x[1]["name"]))
+    if hits:
+        lines = []
+        for _, p in hits[:5]:
+            extra = " — %d%% ছাড় (আগের দাম %s%s)" % (p["pct"], cur, _n(p["base"])) if p["pct"] else ""
+            lines.append(d("• %s: প্রতি %s %s%s%s। মজুত %d, মেয়াদ %s পর্যন্ত।" % (
+                i18n.tr(p["name"]), i18n.UNITS.get(p["unit"], p["unit"]), cur, _n(p["price"]), extra, p["qty"],
+                p["expires"].strftime("%d ") + i18n.MONTHS[p["expires"].strftime("%b")])))
+        return "জি, আমাদের কাছে আছে:\n" + "\n".join(lines)
+    if toks:
+        return "দুঃখিত, এই পণ্যটি এখন মজুত দেখতে পাচ্ছি না। শপ পেজে সব পণ্য দেখতে পারেন।"
+    return "যেকোনো পণ্য সম্পর্কে জিজ্ঞাসা করুন — যেমন “দুধের দাম” বা “কিসে ছাড় আছে?”"
+
+
+def shop_fallback(msg, catalog, lang="en"):
     """Rule-based answer used when Gemini is unreachable."""
+    if lang == "bn":
+        return shop_fallback_bn(msg, catalog)
     low = msg.lower()
     if any(k in low for k in ("discount", "offer", "deal", "sale", "cheap", "off")):
         deals = sorted([p for p in catalog if p["pct"] > 0], key=lambda p: -p["pct"])[:6]
@@ -130,8 +169,22 @@ def admin_system(context):
             "language (English or Bangla).\n\nLIVE STORE DATA:\n" + context)
 
 
-def admin_fallback(context):
+ADMIN_BN = [("TODAY:", "আজ:"), ("Currency ৳.", "মুদ্রা ৳।"), ("TOTALS:", "মোট:"), ("active batches", "সক্রিয় ব্যাচ"),
+            ("units at risk (cost value", "ইউনিট ঝুঁকিতে (খরচ মূল্য"), ("batches expiring within 3 days", "ব্যাচের মেয়াদ ৩ দিনের মধ্যে"),
+            ("pending AI actions", "এআই পদক্ষেপ অপেক্ষমাণ"), ("LAST 7 DAYS SALES:", "শেষ ৭ দিনের বিক্রি:"), ("revenue", "আয়"),
+            ("units", "ইউনিট"), ("TOP SELLERS (7d):", "সেরা বিক্রিত (৭ দিন):"), ("WASTE (30d):", "অপচয় (৩০ দিন):"),
+            ("lost", "ক্ষতি"), ("Worst:", "সবচেয়ে বেশি:"), ("DONATIONS (30d):", "দান (৩০ দিন):"), ("meals", "বেলার খাবার")]
+
+
+def admin_fallback(context, lang="en"):
     keep = [l for l in context.splitlines() if l.startswith(("TODAY", "TOTALS", "LAST 7", "TOP SELLERS", "WASTE", "DONATIONS"))]
+    if lang == "bn":
+        out = []
+        for l in keep:
+            for a, b in ADMIN_BN:
+                l = l.replace(a, b)
+            out.append("• " + i18n.tr(l))
+        return "(এআই সেবা পাওয়া যাচ্ছে না — তার বদলে তথ্যের সারাংশ দেখানো হচ্ছে)\n" + "\n".join(out)
     return ("(AI service unreachable — showing a data summary instead)\n" + "\n".join("• " + l for l in keep))
 
 

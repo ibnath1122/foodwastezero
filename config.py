@@ -22,6 +22,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "change-this-secret-key")
 
 # ---- Forecast / impact model constants ----
 CURRENCY = "৳"
+DEFAULT_LANG = os.getenv("FWZ_LANG", "en")   # "en" or "bn" - first language shown before a visitor picks one
 DEMAND_ELASTICITY = 0.04   # each 1% discount lifts demand by ~4% (30% off -> 2.2x demand)
 KG_PER_MEAL = 0.4          # ~0.4 kg of food per meal
 CO2_PER_KG = 2.5           # ~2.5 kg CO2e avoided per kg of food kept out of waste

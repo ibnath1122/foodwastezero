@@ -1,4 +1,4 @@
-"""Demo data: 7 categories, 24 products, 45 days of sales history, live batches
+"""Demo data: 8 categories, 24 products, 45 days of sales history, live batches
 (some deliberately overstocked so the AI has something to catch), donation partners
 and a few weeks of waste/donation history for the charts.
 """
@@ -10,14 +10,14 @@ from werkzeug.security import generate_password_hash
 
 CATEGORIES = [
     ("Bakery", 1), ("Dairy", 1), ("Fresh Produce", 1), ("Meat & Fish", 0),
-    ("Ready Meals", 1), ("Beverages", 1), ("Packaged Foods", 1),
+    ("Ready Meals", 1), ("Beverages", 1), ("Packaged Foods", 1), ("Sweets", 1),
 ]
 
 # name, sku, category, unit, cost, price, kg/unit, shelf-life days, avg daily demand
 PRODUCTS = [
     ("Sandwich Bread", "BAK-001", "Bakery", "loaf", 45, 65, 0.40, 4, 22),
-    ("Pau Bun (6 pack)", "BAK-002", "Bakery", "pack", 30, 48, 0.30, 3, 14),
-    ("Chocolate Muffin", "BAK-003", "Bakery", "pc", 22, 40, 0.12, 3, 16),
+    ("Bakorkhani (6 pcs)", "BAK-002", "Bakery", "pack", 30, 48, 0.30, 3, 14),
+    ("Rosogolla (box of 12)", "SWT-001", "Sweets", "box", 130, 220, 0.50, 4, 16),
     ("Pasteurized Milk 1L", "DAI-001", "Dairy", "pc", 88, 110, 1.03, 6, 30),
     ("Sweet Yogurt (Doi) 500g", "DAI-002", "Dairy", "cup", 70, 105, 0.50, 7, 12),
     ("Eggs (dozen)", "DAI-003", "Dairy", "dozen", 125, 160, 0.70, 14, 18),
@@ -30,15 +30,15 @@ PRODUCTS = [
     ("Rui Fish 1kg", "MEA-002", "Meat & Fish", "kg", 300, 390, 1.00, 2, 8),
     ("Beef Mince 500g", "MEA-003", "Meat & Fish", "pack", 330, 420, 0.50, 3, 6),
     ("Chicken Biryani Box", "RDY-001", "Ready Meals", "box", 120, 220, 0.45, 2, 20),
-    ("Vegetable Samosa (6)", "RDY-002", "Ready Meals", "pack", 35, 70, 0.30, 2, 17),
+    ("Beguni (6 pcs)", "RDY-002", "Ready Meals", "pack", 30, 60, 0.30, 2, 17),
     ("Paratha Pack (5)", "RDY-003", "Ready Meals", "pack", 55, 85, 0.40, 10, 14),
     ("Fresh Orange Juice 1L", "BEV-001", "Beverages", "bottle", 95, 160, 1.05, 5, 11),
     ("Lassi 250ml", "BEV-002", "Beverages", "bottle", 28, 50, 0.27, 8, 18),
-    ("Mango Juice 1L", "BEV-003", "Beverages", "bottle", 70, 110, 1.05, 30, 9),
-    ("Instant Noodles (4 pack)", "PKG-001", "Packaged Foods", "pack", 60, 85, 0.30, 90, 10),
+    ("Roshmalai (box of 6)", "SWT-002", "Sweets", "box", 150, 260, 0.45, 4, 9),
+    ("Khichuri Box", "RDY-005", "Ready Meals", "box", 70, 130, 0.45, 2, 10),
     ("Biscuit Family Pack", "PKG-002", "Packaged Foods", "pack", 40, 60, 0.35, 120, 12),
-    ("Cornflakes 500g", "PKG-003", "Packaged Foods", "box", 270, 340, 0.50, 150, 4),
-    ("Chicken Soup Cup", "RDY-004", "Ready Meals", "cup", 45, 80, 0.30, 5, 7),
+    ("Jilapi (500g)", "SWT-003", "Sweets", "pack", 90, 150, 0.50, 5, 4),
+    ("Haleem (cup)", "RDY-004", "Ready Meals", "cup", 60, 110, 0.35, 3, 7),
 ]
 
 PARTNERS = [

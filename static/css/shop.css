@@ -55,8 +55,9 @@ body.shop .s-card{display:block;padding:0;background:var(--surface);border:1px s
 .s-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:var(--pop);text-decoration:none}
 .pic{position:relative;height:172px;display:grid;place-items:center;overflow:hidden;background:color-mix(in srgb,var(--tint,#e8efe5) var(--tint-mix),var(--surface))}
 [data-cat="Bakery"]{--tint:#fbebcd}[data-cat="Dairy"]{--tint:#dfeafb}[data-cat="Fresh Produce"]{--tint:#dcf1de}
-[data-cat="Meat & Fish"]{--tint:#fbdfda}[data-cat="Ready Meals"]{--tint:#fde7c9}[data-cat="Beverages"]{--tint:#d8eef2}[data-cat="Packaged Foods"]{--tint:#e9e3f6}
+[data-cat="Meat & Fish"]{--tint:#fbdfda}[data-cat="Ready Meals"]{--tint:#fde7c9}[data-cat="Beverages"]{--tint:#d8eef2}[data-cat="Packaged Foods"]{--tint:#e9e3f6}[data-cat="Sweets"]{--tint:#fde0ea}
 .pic .ic{width:64px;height:64px;stroke-width:1.4;color:var(--accent)}
+.pic .nophoto{position:absolute;inset:0}
 .pic img.prod{width:72%;height:84%;object-fit:contain;filter:drop-shadow(0 8px 8px rgba(20,40,25,.16));transition:transform .35s var(--ease)}
 .s-card:hover .pic img.prod{transform:scale(1.07) rotate(-1.5deg)}
 .pic img.prod.photo{width:100%;height:100%;object-fit:cover;filter:none}

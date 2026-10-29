@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import icon, cat_icon %}
+{% from "_macros.html" import icon, cat_icon, pthumb %}
 {% block title %}Products{% endblock %}
 {% block content %}
 <div class="page-head">
@@ -10,7 +10,7 @@
   <tr><th>SKU</th><th>Product</th><th>Category</th><th class="num">Cost</th><th class="num">Price</th><th class="num">Margin</th><th class="num">Shelf life</th><th class="num">In stock</th><th data-nosort></th></tr>
   {% for r in rows %}<tr data-f-cat="{{ r.category_name }}" data-f-active="{{ 'Active' if r.active else 'Inactive' }}">
     <td class="muted small">{{ r.sku }}</td>
-    <td><div class="prod">{{ cat_icon(r.category_name) }}<b>{{ r.name }}</b> {% if not r.active %}<span class="pill grey">inactive</span>{% endif %}</div></td>
+    <td><div class="prod">{{ pthumb(r.id, r.sku, r.name) }}<b>{{ r.name }}</b> {% if not r.active %}<span class="pill grey">inactive</span>{% endif %}</div></td>
     <td>{{ r.category_name }}</td>
     <td class="num">{{ r.unit_cost|money }}</td><td class="num">{{ r.unit_price|money }}</td>
     <td class="num">{{ ((r.unit_price - r.unit_cost) / r.unit_price * 100)|round|int }}%</td>

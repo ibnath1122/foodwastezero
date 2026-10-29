@@ -29,6 +29,7 @@
     <div class="side-foot">
       <div class="who">{{ user_name }}</div>
       <div class="tools">
+        <span class="lang-sw" role="group" aria-label="Language"><a class="{{ 'on' if lang=='en' }}" href="{{ url_for('set_language', code='en', next=request.full_path) }}" lang="en">EN</a><a class="{{ 'on' if lang=='bn' }}" href="{{ url_for('set_language', code='bn', next=request.full_path) }}" lang="bn">বাংলা</a></span>
         <button class="icon-btn" data-toggle-theme title="Switch light / dark mode" aria-label="Switch light or dark mode">
           <svg class="ic moon"><use href="#i-moon"/></svg><svg class="ic sun"><use href="#i-sun"/></svg></button>
         <button class="dot green" data-accent-set="green" title="Green theme" aria-label="Green theme"></button>

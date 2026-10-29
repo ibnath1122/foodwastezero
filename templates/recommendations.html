@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import icon, cat_icon %}
+{% from "_macros.html" import icon, cat_icon, pthumb %}
 {% block title %}AI Actions{% endblock %}
 {% block content %}
 <div class="page-head">
@@ -14,7 +14,7 @@
 {% if pending %}<div data-enhance data-limit="6" data-search="Search product or batch…" data-filters="urgency:Urgency,type:Action">
 {% for a in pending %}
 <div class="card rec {{ a.urgency }}" data-item data-f-urgency="{{ a.urgency|capitalize }}" data-f-type="{{ a.action_type|capitalize }}">
-  {{ cat_icon(a.category_name) }}
+  {{ pthumb(a.product_id, a.sku, a.product_name) }}
   <div>
     <h3>{{ a.product_name }} <span class="muted small">· {{ a.batch_code }}</span></h3>
     <div class="meta">
@@ -37,7 +37,7 @@
 {% endfor %}
 </div>
 {% else %}
-<div class="card empty"><div class="empty-art">{% include "_art_basket.html" %}</div>No pending recommendations. Stock is on track.</div>
+<div class="card empty"><div class="empty-art">{% include "_art_photos.html" %}</div>No pending recommendations. Stock is on track.</div>
 {% endif %}
 
 {% if history %}

@@ -1,5 +1,6 @@
 /* Tiny chat client used by the customer widget and the admin assistant page. */
 (function () {
+  var T = window.FWZ_T || function (x) { return x; };
   function esc(s) { return s.replace(/[&<>"]/g, function (c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
   function fmt(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'); }
 
@@ -15,11 +16,11 @@
     function send(text) {
       text = (text || '').trim(); if (!text || busy) return;
       busy = true; add('user', text); hist.push({role: 'user', text: text}); input.value = '';
-      var wait = add('bot typing', 'Thinking…');
+      var wait = add('bot typing', T('Thinking…'));
       fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({messages: hist})})
         .then(function (r) { return r.json(); })
         .then(function (j) { wait.className = 'msg bot'; wait.innerHTML = fmt(j.reply); hist.push({role: 'bot', text: j.reply}); })
-        .catch(function () { wait.className = 'msg bot'; wait.textContent = 'Sorry, I could not connect. Please try again.'; hist.pop(); })
+        .catch(function () { wait.className = 'msg bot'; wait.textContent = T('Sorry, I could not connect. Please try again.'); hist.pop(); })
         .then(function () { busy = false; log.scrollTop = log.scrollHeight; input.focus(); });
     }
     form.addEventListener('submit', function (e) { e.preventDefault(); send(input.value); });

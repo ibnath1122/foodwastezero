@@ -31,7 +31,11 @@ def enabled():
     return bool(config.GEMINI_API_KEY)
 
 
-def analyze(context, timeout=45):
+BN_NOTE = (" Write every text value in clear, simple Bangla (বাংলা) as a Bangladeshi shop manager would say it; "
+           "keep product names exactly as given and use digits 0-9 for numbers.")
+
+
+def analyze(context, timeout=45, lang="en"):
     """context: dict of facts from the forecast engine. Returns (result_dict, error_str)."""
     if not enabled():
         return None, "No GEMINI_API_KEY set. Add it to the .env file and restart."
@@ -40,7 +44,8 @@ def analyze(context, timeout=45):
         "Below is JSON produced by the shop's forecasting engine. Use ONLY these numbers; never invent products or "
         "figures. Give a short, practical analysis for the store manager: what to act on today, which products to "
         "reorder or hold back, risks, and quick wins. Be concise and specific, name products and quantities.\n\n"
-        + json.dumps(context, ensure_ascii=False, default=str))
+        + json.dumps(context, ensure_ascii=False, default=str)
+        + (BN_NOTE if lang == "bn" else ""))
     body = {"contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.3, "responseMimeType": "application/json",
                                  "responseSchema": SCHEMA}}
@@ -62,11 +67,13 @@ def analyze(context, timeout=45):
         return None, "Could not get an AI analysis (%s)." % e
 
 
-def chat(system, history, timeout=40):
+def chat(system, history, timeout=40, lang="en"):
     """Multi-turn chat. history: [{"role": "user"|"bot", "text": str}, ...] ending with the user's message.
     Returns (reply_text, error_str)."""
     if not enabled():
         return None, "No GEMINI_API_KEY set."
+    if lang == "bn":
+        system += "\n\nIMPORTANT: always reply in Bangla (বাংলা), in simple everyday words; keep product names as listed and use digits 0-9." 
     contents = [{"role": "user" if m["role"] == "user" else "model", "parts": [{"text": m["text"]}]} for m in history]
     body = {"systemInstruction": {"parts": [{"text": system}]}, "contents": contents,
             "generationConfig": {"temperature": 0.3, "maxOutputTokens": 900}}

@@ -37,7 +37,7 @@
       <input type="search" name="q" value="{{ q }}" placeholder="Search products…" aria-label="Search products">
       <select name="category" onchange="this.form.submit()" aria-label="Category">
         <option value="">All categories</option>
-        {% for c in cats %}<option {{ 'selected' if c==cat }}>{{ c }}</option>{% endfor %}
+        {% for c in cats %}<option value="{{ c }}" {{ 'selected' if c==cat }}>{{ c }}</option>{% endfor %}
       </select>
       <select name="sort" onchange="this.form.submit()" aria-label="Sort">
         {% for k, label in [('deals','Biggest discount'),('expiry','Expiring soon'),('low','Price: low to high'),('high','Price: high to low'),('name','Name')] %}

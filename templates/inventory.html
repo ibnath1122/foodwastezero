@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import icon, cat_icon %}
+{% from "_macros.html" import icon, cat_icon, pthumb %}
 {% block title %}Inventory{% endblock %}
 {% block content %}
 <div class="page-head">
@@ -14,7 +14,7 @@
   {% set share = ((b.proj_sold / b.qty_remaining * 100) if b.qty_remaining else 0) %}
   <tr data-f-cat="{{ b.category_name }}" data-f-risk="{{ 'At risk' if b.at_risk>0 else 'On track' }}"
       data-f-exp="{{ '0-1 days' if b.days_left<=1 else '2-3 days' if b.days_left<=3 else '4-7 days' if b.days_left<=7 else '8+ days' }}">
-    <td><div class="prod">{{ cat_icon(b.category_name) }}<div><b>{{ b.product_name }}</b><div class="muted small">{{ b.batch_code }} · {{ b.category_name }}</div></div></div></td>
+    <td><div class="prod">{{ pthumb(b.product_id, b.sku, b.product_name) }}<div><b>{{ b.product_name }}</b><div class="muted small">{{ b.batch_code }} · {{ b.category_name }}</div></div></div></td>
     <td data-sort="{{ b.days_left }}">{{ b.expires_on|fdate }}<div>{% if b.days_left<=1 %}<span class="pill bad">{{ 'today' if b.days_left==0 else '1 day left' }}</span>
       {% elif b.days_left<=3 %}<span class="pill warn">{{ b.days_left }} days left</span>
       {% else %}<span class="pill grey">{{ b.days_left }} days left</span>{% endif %}</div></td>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import icon, cat_icon %}
+{% from "_macros.html" import icon, cat_icon, pthumb %}
 {% block title %}Smart Reorder{% endblock %}
 {% block content %}
 <div class="page-head">
@@ -15,7 +15,7 @@
   <tr><th>Product</th><th class="num">In stock</th><th class="num">Cover (days)</th><th class="num">Need</th><th>Status</th><th class="num">Order qty</th><th class="num">Cost</th><th data-nosort></th></tr>
   {% for r in plan %}
   <tr data-f-status="{{ {'out':'Out of stock','reorder':'Reorder','overstock':'Overstocked','ok':'OK'}[r.status] }}" data-f-cat="{{ r.category_name }}">
-    <td><div class="prod">{{ cat_icon(r.category_name) }}<div><b>{{ r.name }}</b><div class="muted small">{{ r.category_name }} · {{ r.sku }}</div></div></div></td>
+    <td><div class="prod">{{ pthumb(r.id, r.sku, r.name) }}<div><b>{{ r.name }}</b><div class="muted small">{{ r.category_name }} · {{ r.sku }}</div></div></div></td>
     <td class="num">{{ r.stock }} {{ r.unit }}<div class="muted small">{{ r.daily }} / day</div></td>
     <td class="num">{{ r.cover if r.cover is not none else '-' }}</td>
     <td class="num">{{ r.need }} <span class="muted small">/ {{ r.horizon }}d</span></td>

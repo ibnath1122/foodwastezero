@@ -9,7 +9,7 @@
 </head>
 <body class="shop">
 {% include "_icons.html" %}
-{% macro art(cat, p=None) %}{% set im = product_image(p.id, p.sku) if p else None %}{% if im %}<img class="prod {{ 'photo' if im.photo }}" src="{{ im.url }}" alt="{{ p.name }}" loading="lazy">{% else %}{% set m = {'Bakery':'c-bakery','Dairy':'c-dairy','Fresh Produce':'c-produce','Meat & Fish':'c-meat','Ready Meals':'c-meal','Beverages':'c-drink','Packaged Foods':'i-box'} %}<svg class="ic"><use href="#{{ m.get(cat, 'i-box') }}"/></svg>{% endif %}{% endmacro %}
+{% macro art(cat, p=None) %}{% set im = product_image(p.id, p.sku) if p else None %}{% if im %}<img class="prod photo" src="{{ im.url }}" alt="{{ p.name }}" loading="lazy">{% else %}<div class="nophoto"><b>{{ p.name if p else cat }}</b><small>{{ cat }}</small></div>{% endif %}{% endmacro %}
 <header class="top">
   <div class="wrap s-bar">
     <a class="brand" href="{{ url_for('shop') }}"><span class="logo"><svg class="ic"><use href="#i-leaf"/></svg></span><span>FoodWasteZero<small>Fresh · Fair · Zero waste</small></span></a>
@@ -19,6 +19,7 @@
       <a href="{{ url_for('shop', type='last') }}">Last chance</a>
     </nav>
     <div class="s-tools">
+      <span class="lang-sw" role="group" aria-label="Language"><a class="{{ 'on' if lang=='en' }}" href="{{ url_for('set_language', code='en', next=request.full_path) }}" lang="en">EN</a><a class="{{ 'on' if lang=='bn' }}" href="{{ url_for('set_language', code='bn', next=request.full_path) }}" lang="bn">বাংলা</a></span>
       <button class="icon-btn" data-toggle-theme aria-label="Switch light or dark mode"><svg class="ic moon"><use href="#i-moon"/></svg><svg class="ic sun"><use href="#i-sun"/></svg></button>
       <a class="staff" href="{{ url_for('dashboard') if session.get('uid') else url_for('login') }}">{{ 'Dashboard' if session.get('uid') else 'Staff login' }}</a>
     </div>

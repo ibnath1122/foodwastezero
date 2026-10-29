@@ -1,0 +1,4 @@
+Product photos for RDY-001, RDY-002, RDY-003, RDY-004, RDY-005, DAI-002, BAK-002, SWT-001, SWT-002, SWT-003 come from the
+"Bangladeshi Food Dataset" (https://github.com/Ishmam97/Bangladeshi-Food-Dataset, labelled CC0-1.0 by its author).
+The dataset images were collected from the web, so for a public launch replace them with your own shop photos.
+Photos downloaded by tools/fetch_photos.py are listed below with author and licence.

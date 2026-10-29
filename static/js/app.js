@@ -3,7 +3,25 @@
   var root = document.documentElement;
   function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
+  /* Bangla support: the server translates the page itself; these helpers translate text that JS builds. */
+  var BN = document.documentElement.lang === 'bn';
+  var BN_TXT = {
+    'Search…': 'খুঁজুন…', 'Search': 'খুঁজুন', 'Reset': 'রিসেট', 'CSV': 'CSV', 'Download the rows currently matching': 'বর্তমান সারিগুলো ডাউনলোড করুন',
+    'Nothing matches your search or filters.': 'আপনার অনুসন্ধান বা ফিল্টারে কিছু মেলেনি।', 'Show less': 'কম দেখান', 'Showing ': 'দেখানো হচ্ছে ',
+    ' of ': ' / ', ' (filtered from ': ' (ফিল্টার করা হয়েছে, মোট ', 'Show all (': 'সব দেখান (', 'All ': 'সব ',
+    'Thinking…': 'ভাবছি…', 'Sorry, I could not connect. Please try again.': 'দুঃখিত, সংযোগ করা যায়নি। আবার চেষ্টা করুন।',
+    'Actual': 'প্রকৃত', 'Forecast': 'পূর্বাভাস'
+  };
+  var BN_WORDS = { 'Category': 'ক্যাটাগরি', 'Status': 'অবস্থা', 'Expiry': 'মেয়াদ', 'Partner': 'সহযোগী', 'Urgency': 'জরুরিত্ব', 'Action': 'পদক্ষেপ', 'Price': 'দাম' };
+  function bnDigits(s) { return String(s).replace(/[0-9]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.charAt(d); }); }
+  function asciiDigits(s) { return String(s).replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); }); }
+  function T(s) { return BN && BN_TXT[s] ? BN_TXT[s] : s; }
+  function N(x) { return BN ? bnDigits(x) : String(x); }
+  function V(v) { return BN && window.FWZ_VAL && window.FWZ_VAL[v] ? window.FWZ_VAL[v] : v; }   // filter option labels
+  window.FWZ_T = T;
+
   var FWZ = window.FWZ = {
+    t: T, n: N, val: V, ascii: asciiDigits, bn: BN,
     rebuilders: [],
     v: function (n) { return getComputedStyle(root).getPropertyValue(n).trim(); },
     colors: function () {
@@ -55,6 +73,7 @@
    data-filters="key:Label,key2:Label2"   (rows/items carry  data-f-key="value")
    --------------------------------------------------------------------------------------------- */
 (function () {
+  var F = window.FWZ, T = F.t, N = F.n, V = F.val, BN = F.bn, asciiDigits = F.ascii;
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; }
   function icon(n) { return '<svg class="ic"><use href="#' + n + '"/></svg>'; }
 
@@ -74,22 +93,22 @@
 
     /* toolbar */
     var bar = el('div', 'toolbar');
-    var sbox = el('label', 'searchbox', icon('i-search') + '<input type="search" placeholder="' + (root.dataset.search || 'Search…') + '" aria-label="Search">');
+    var sbox = el('label', 'searchbox', icon('i-search') + '<input type="search" placeholder="' + (root.dataset.search || T('Search…')) + '" aria-label="Search">');
     bar.appendChild(sbox);
     var sinput = sbox.querySelector('input');
     var selects = cfg.map(function (c) {
       var vals = []; items.forEach(function (it) { var v = it.getAttribute('data-f-' + c.key); if (v && vals.indexOf(v) < 0) vals.push(v); });
       vals.sort(function (a, b) { return a.localeCompare(b, undefined, { numeric: true }); });
-      var s = el('select', 'filter', '<option value="">All ' + c.label.toLowerCase() + '</option>' +
-        vals.map(function (v) { return '<option>' + v.replace(/&/g, '&amp;') + '</option>'; }).join(''));
+      var s = el('select', 'filter', '<option value="">' + T('All ') + (BN ? c.label : c.label.toLowerCase()) + '</option>' +
+        vals.map(function (v) { return '<option value="' + v.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">' + V(v).replace(/&/g, '&amp;') + '</option>'; }).join(''));
       s.setAttribute('aria-label', c.label);
       s.addEventListener('change', function () { fv[c.key] = s.value; showAll = false; apply(); });
       bar.appendChild(s); return s;
     });
-    var reset = el('button', 'btn ghost sm', 'Reset'); reset.type = 'button'; reset.hidden = true;
+    var reset = el('button', 'btn ghost sm', T('Reset')); reset.type = 'button'; reset.hidden = true;
     bar.appendChild(reset);
     if (root.dataset.csv && table) {
-      var csv = el('button', 'btn ghost sm push', icon('i-download') + 'CSV'); csv.type = 'button'; csv.title = 'Download the rows currently matching';
+      var csv = el('button', 'btn ghost sm push', icon('i-download') + 'CSV'); csv.type = 'button'; csv.title = T('Download the rows currently matching');
       csv.addEventListener('click', exportCsv); bar.appendChild(csv);
     }
     anchor.parentNode.insertBefore(bar, anchor);
@@ -98,27 +117,27 @@
     var foot = el('div', 'tfoot'); var count = el('span', 'muted small'); var more = el('button', 'btn ghost sm'); more.type = 'button';
     foot.appendChild(count); foot.appendChild(more);
     if (table) anchor.parentNode.insertBefore(foot, table.nextSibling); else root.appendChild(foot);
-    var empty = el('div', 'empty', 'Nothing matches your search or filters.'); empty.hidden = true;
+    var empty = el('div', 'empty', T('Nothing matches your search or filters.')); empty.hidden = true;
     foot.parentNode.insertBefore(empty, foot);
 
     function apply() {
       var matched = [];
       items.forEach(function (it) {
-        var ok = !q || it.textContent.toLowerCase().indexOf(q) > -1;
+        var ok = !q || asciiDigits(it.textContent).toLowerCase().indexOf(q) > -1;
         cfg.forEach(function (c) { if (fv[c.key] && it.getAttribute('data-f-' + c.key) !== fv[c.key]) ok = false; });
         it._m = ok; if (ok) matched.push(it);
       });
       var idx = 0;
       items.forEach(function (it) { if (it._m) { it.hidden = !(showAll || idx < limit); idx++; } else it.hidden = true; });
       var shown = Math.min(matched.length, showAll ? matched.length : limit);
-      count.textContent = matched.length ? 'Showing ' + shown + ' of ' + matched.length + (matched.length !== items.length ? ' (filtered from ' + items.length + ')' : '') : '';
+      count.textContent = matched.length ? T('Showing ') + N(shown) + T(' of ') + N(matched.length) + (matched.length !== items.length ? T(' (filtered from ') + N(items.length) + ')' : '') : '';
       more.hidden = matched.length <= limit;
-      more.textContent = showAll ? 'Show less' : 'Show all (' + matched.length + ')';
+      more.textContent = showAll ? T('Show less') : T('Show all (') + N(matched.length) + ')';
       empty.hidden = matched.length > 0;
       reset.hidden = !(q || Object.keys(fv).some(function (k) { return fv[k]; }));
       if (table) table.style.display = matched.length ? '' : 'none';
     }
-    sinput.addEventListener('input', function () { q = sinput.value.trim().toLowerCase(); showAll = false; apply(); });
+    sinput.addEventListener('input', function () { q = asciiDigits(sinput.value).trim().toLowerCase(); showAll = false; apply(); });
     more.addEventListener('click', function () { showAll = !showAll; apply(); });
     reset.addEventListener('click', function () { sinput.value = ''; q = ''; fv = {}; selects.forEach(function (s) { s.value = ''; }); showAll = false; apply(); });
 
@@ -135,7 +154,7 @@
           var num = th.classList.contains('num');
           function key(it) {
             var c = it.cells[i]; if (!c) return '';
-            var v = c.getAttribute('data-sort'); if (v === null) v = c.textContent.trim();
+            var v = c.getAttribute('data-sort'); if (v === null) v = asciiDigits(c.textContent.trim());
             if (num || (v !== '' && !isNaN(Number(v)))) { var n = parseFloat(String(v).replace(/[^0-9.\-]/g, '')); return isNaN(n) ? -Infinity : n; }
             return v.toLowerCase();
           }

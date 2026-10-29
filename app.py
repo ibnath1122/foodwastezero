@@ -17,6 +17,7 @@ import db as dbm
 import forecast as fc
 import chatbots
 import gemini
+import i18n
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
@@ -70,18 +71,43 @@ def fdate(v):
     return str(v or "")
 
 
+# ---------------------------------------------------------------- language (English / বাংলা)
+@app.before_request
+def pick_language():
+    g.lang = i18n.lang_from(request.cookies, session, config.DEFAULT_LANG)
+
+
+@app.route("/lang/<code>")
+def set_language(code):
+    code = code if code in i18n.LANGS else config.DEFAULT_LANG
+    session["lang"] = code
+    back = request.args.get("next") or request.referrer or url_for("shop")
+    if not back.startswith("/") and request.host not in back:      # only redirect inside this site
+        back = url_for("shop")
+    resp = redirect(back)
+    resp.set_cookie("fwz_lang", code, max_age=365 * 24 * 3600, samesite="Lax")
+    return resp
+
+
+@app.after_request
+def translate_response(resp):
+    if g.get("lang") == "bn" and resp.mimetype == "text/html" and not resp.direct_passthrough:
+        resp.set_data(i18n.translate_html(resp.get_data(as_text=True)))
+    return resp
+
+
 @app.context_processor
 def inject_globals():
     pending = 0
     if "uid" in session:
         pending = get_db().scalar("SELECT COUNT(*) FROM actions WHERE status='pending'")
     return {"currency": config.CURRENCY, "today": date.today(), "pending_count": pending,
-            "user_name": session.get("name", "")}
+            "user_name": session.get("name", ""), "lang": g.get("lang", "en")}
 
 
 # ---------------------------------------------------------------- product images
-# An uploaded photo (static/uploads/p<id>.<ext>) wins; otherwise the illustration for the SKU
-# (static/img/products/<SKU>.svg); otherwise None (templates fall back to the category icon).
+# Real photos only. An uploaded photo (static/uploads/p<id>.<ext>) wins; otherwise the bundled photo for the SKU
+# (static/img/products/<SKU>.jpg|png|webp); otherwise None (templates show a plain "photo coming soon" tile).
 UPLOAD_DIR = os.path.join(app.static_folder, "uploads")
 ALLOWED_IMG = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 
@@ -92,9 +118,10 @@ def product_image(pid, sku=""):
             f = "uploads/p%s%s" % (pid, ext)
             return {"url": url_for("static", filename=f,
                                    v=int(os.path.getmtime(os.path.join(app.static_folder, f)))), "photo": True}
-    art = "img/products/%s.svg" % sku
-    if sku and os.path.exists(os.path.join(app.static_folder, art)):
-        return {"url": url_for("static", filename=art), "photo": False}
+    for ext in (".jpg", ".jpeg", ".png", ".webp"):
+        art = "img/products/%s%s" % (sku, ext)
+        if sku and os.path.exists(os.path.join(app.static_folder, art)):
+            return {"url": url_for("static", filename=art), "photo": True}
     return None
 
 
@@ -258,7 +285,7 @@ def build_ai_context(db):
 def ai_insights():
     result = error = None
     if request.method == "POST":
-        result, error = gemini.analyze(build_ai_context(get_db()))
+        result, error = gemini.analyze(build_ai_context(get_db()), lang=g.lang)
     return render_template("ai_insights.html", result=result, error=error, enabled=gemini.enabled(),
                            model=config.GEMINI_MODEL)
 
@@ -302,6 +329,16 @@ def shop_catalog(db):
     return out
 
 
+def _featured(items):
+    """Hero card: prefer products that have a real photo, then the biggest deal / soonest expiry."""
+    pool = [p for p in items if product_image(p["id"], p["sku"])] or items
+    if not pool:
+        return None
+    if any(p["pct"] for p in pool):
+        return max(pool, key=lambda x: (x["pct"], -x["days_left"]))
+    return min(pool, key=lambda x: x["days_left"])
+
+
 @app.route("/shop")
 def shop():
     items = shop_catalog(get_db())
@@ -334,8 +371,7 @@ def shop():
              "kg": round(sum(l["qty"] * p["kg"] for p in deals for l in p["lots"] if l["pct"] > 0))}
     return render_template("shop.html", items=view, cats=cats, kind=kind, cat=cat, q=q, sort=sort,
                            counts=counts, stats=stats, shelf=sorted(items, key=lambda x: x["name"])[:16],
-                           featured=(max(items, key=lambda x: (x["pct"], -x["days_left"])) if items and stats["deals"]
-                                     else (min(items, key=lambda x: x["days_left"]) if items else None)))
+                           featured=_featured(items))
 
 
 @app.route("/shop/<int:pid>")
@@ -354,14 +390,14 @@ def shop_product(pid):
 def api_shop_chat():
     """Public customer assistant: prices / discounts / availability."""
     if not chatbots.rate_ok("shop:" + (request.remote_addr or "?")):
-        return jsonify({"reply": "You're sending messages very quickly — please wait a moment and try again."}), 429
+        return jsonify({"reply": "অনুগ্রহ করে একটু অপেক্ষা করে আবার চেষ্টা করুন।" if g.lang == "bn" else "You're sending messages very quickly — please wait a moment and try again."}), 429
     hist = chatbots.clean_history((request.get_json(silent=True) or {}).get("messages"))
     if not hist or hist[-1]["role"] != "user":
-        return jsonify({"reply": "Ask me about any product — for example \"price of milk\" or \"what's on discount?\""})
+        return jsonify({"reply": "যেকোনো পণ্য সম্পর্কে জিজ্ঞাসা করুন — যেমন “দুধের দাম” বা “কিসে ছাড় আছে?”" if g.lang == "bn" else "Ask me about any product — for example \"price of milk\" or \"what's on discount?\""})
     catalog = shop_catalog(get_db())
-    reply, err = gemini.chat(chatbots.shop_system(catalog, today()), hist)
+    reply, err = gemini.chat(chatbots.shop_system(catalog, today()), hist, lang=g.lang)
     if err:
-        reply = chatbots.shop_fallback(hist[-1]["text"], catalog)
+        reply = chatbots.shop_fallback(hist[-1]["text"], catalog, g.lang)
     return jsonify({"reply": reply})
 
 
@@ -376,11 +412,11 @@ def assistant():
 def api_admin_chat():
     hist = chatbots.clean_history((request.get_json(silent=True) or {}).get("messages"), max_len=800)
     if not hist or hist[-1]["role"] != "user":
-        return jsonify({"reply": "Ask me about stock, expiring batches, sales, waste or what to reorder."})
+        return jsonify({"reply": "স্টক, মেয়াদ-শেষ হতে চলা ব্যাচ, বিক্রি, অপচয় বা কী রিঅর্ডার করবেন — জিজ্ঞাসা করুন।" if g.lang == "bn" else "Ask me about stock, expiring batches, sales, waste or what to reorder."})
     ctx = chatbots.admin_context(get_db(), today(), fc)
-    reply, err = gemini.chat(chatbots.admin_system(ctx), hist)
+    reply, err = gemini.chat(chatbots.admin_system(ctx), hist, lang=g.lang)
     if err:
-        reply = chatbots.admin_fallback(ctx)
+        reply = chatbots.admin_fallback(ctx, g.lang)
     return jsonify({"reply": reply})
 
 
@@ -534,7 +570,7 @@ def recommendations():
     db = get_db()
     pending = db.all(
         "SELECT a.*, b.batch_code, b.expires_on, b.qty_remaining, p.name AS product_name, p.unit, p.unit_price, "
-        "c.name AS category_name "
+        "c.name AS category_name, p.id AS product_id, p.sku "
         "FROM actions a JOIN batches b ON b.id=a.batch_id JOIN products p ON p.id=b.product_id "
         "JOIN categories c ON c.id=p.category_id "
         "WHERE a.status='pending' "

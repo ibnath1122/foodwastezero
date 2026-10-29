@@ -37,10 +37,10 @@ FWZ.chart('wd', c => ({type:'bar',data:{labels:{{ weekdays|tojson }},datasets:[{
 const sel=document.getElementById('wbatch'), rng=document.getElementById('wpct');
 async function sim(){
   if(!sel) return;
-  document.getElementById('pctlbl').textContent=rng.value;
+  document.getElementById('pctlbl').textContent=FWZ.n(rng.value);
   const r=await fetch('{{ url_for("api_whatif") }}?batch_id='+sel.value+'&pct='+rng.value); const d=await r.json();
-  document.getElementById('sold').textContent=Math.round(d.proj_sold)+' of '+d.remaining;
-  document.getElementById('risk').textContent=d.at_risk;
+  document.getElementById('sold').textContent=FWZ.n(Math.round(d.proj_sold))+FWZ.t(' of ')+FWZ.n(d.remaining);
+  document.getElementById('risk').textContent=FWZ.n(d.at_risk);
   document.getElementById('risk').style.color=d.at_risk>0?'var(--bad)':'var(--ok)';
   document.getElementById('wbar').style.width=Math.min(100,d.clear_pct)+'%';
 }
