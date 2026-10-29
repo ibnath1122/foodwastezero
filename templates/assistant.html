@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Assistant{% endblock %}
+{% block title %}Ask AI{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>Assistant</h1><p>Chat with your store data: stock, expiring batches, sales, waste, reordering.{% if not enabled %} <b>(Gemini key not set — you will get data summaries only.)</b>{% endif %}</p></div></div>
+<div class="page-head"><div><h1>Ask AI</h1><p>Chat with your store data: stock, expiring batches, sales, waste, reordering.{% if not enabled %} <b>(Gemini key not set — you will get data summaries only.)</b>{% endif %}</p></div></div>
 <div class="card chatpage" id="adminchat" data-endpoint="{{ url_for('api_admin_chat') }}"
      data-hello="Hi! I can see your live inventory, sales and waste data. Ask me about the current situation or what to do next.">
   <div class="chips">

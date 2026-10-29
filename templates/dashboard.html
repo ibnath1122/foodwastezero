@@ -6,10 +6,10 @@
   <div>
     <span class="eyebrow">Hello, {{ user_name }} · {{ today|fdate }}</span>
     <h1>Save food before it expires.</h1>
-    <p>{{ kpi.units_at_risk|num }} units worth {{ kpi.value_at_risk|money }} are forecast to go unsold. Review suggested discounts and donations.</p>
+    <p>{{ kpi.units_at_risk|num }} units worth {{ kpi.value_at_risk|money }} are forecast to go unsold. Review the AI's suggested discounts and donations.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <a class="btn" href="{{ url_for('recommendations') }}" style="text-decoration:none">{{ icon('i-bolt') }}Review actions</a>
-      <form method="post" action="{{ url_for('scan') }}" style="display:inline"><button class="btn ghost">{{ icon('i-refresh') }}Run scan</button></form>
+      <a class="btn" href="{{ url_for('recommendations') }}" style="text-decoration:none">{{ icon('i-bolt') }}Review AI actions</a>
+      <form method="post" action="{{ url_for('scan') }}" style="display:inline"><button class="btn ghost">{{ icon('i-refresh') }}Run AI scan</button></form>
     </div>
   </div>
   <div class="banner-art">{% include "_art_photos.html" %}</div>
@@ -36,7 +36,7 @@
   <div class="card"><h2>Revenue, last 14 days</h2><div class="chart-box"><canvas id="salesChart"></canvas></div></div>
   <div class="card"><h2>Most urgent batches</h2>
     {% if top %}<div class="table-wrap"><table>
-      <tr><th>Product</th><th>Expires</th><th class="num">At risk</th><th>Action</th></tr>
+      <tr><th>Product</th><th>Expires</th><th class="num">At risk</th><th>AI says</th></tr>
       {% for b in top %}<tr>
         <td><div class="prod">{{ pthumb(b.product_id, b.sku, b.product_name) }}<div><a href="{{ url_for('forecast_page', pid=b.product_id) }}">{{ b.product_name }}</a><div class="muted small">{{ b.batch_code }}</div></div></div></td>
         <td>{% if b.days_left<=1 %}<span class="pill bad">{{ 'today' if b.days_left==0 else '1 day' }}</span>
@@ -47,7 +47,7 @@
           {{ b.rec.action_type|capitalize }}{% if b.rec.discount_pct %} {{ b.rec.discount_pct|int }}%{% endif %}</span>{% endif %}</td>
       </tr>{% endfor %}
     </table></div>
-    <p style="margin:14px 0 0"><a href="{{ url_for('recommendations') }}">See all actions →</a></p>
+    <p style="margin:14px 0 0"><a href="{{ url_for('recommendations') }}">See all AI actions →</a></p>
     {% else %}<div class="empty">All stock is on track to sell.</div>{% endif %}
   </div>
 </div>
