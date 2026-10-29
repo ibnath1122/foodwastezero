@@ -1,8 +1,8 @@
 /* FoodWasteZero theme layer — loaded after style.css.
    Identity: fresh-market. Leaf green (trust), chili red (sale tags only), turmeric (small highlight). */
 :root{
-  --font-body:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;
-  --font-display:"Bricolage Grotesque","Hind Siliguri",system-ui,sans-serif;
+  --font-body:system-ui,-apple-system,"Segoe UI",Roboto,"Hind Siliguri","Noto Sans Bengali",sans-serif;
+  --font-display:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,"Hind Siliguri",sans-serif;
   --bg:#f1f5ef; --surface:#ffffff; --surface-2:#e8efe5; --line:#d8e2d3;
   --text:#13261c; --muted:#5d7266;
   --accent:#17794a; --accent-2:#5cc48a; --accent-ink:#ffffff;

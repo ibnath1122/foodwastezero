@@ -104,8 +104,10 @@ PRODUCT_BN = {
     "Jilapi (500g)": "জিলাপি (৫০০ গ্রাম)", "Khichuri Box": "খিচুড়ি বক্স", "Haleem (cup)": "হালিম (কাপ)",
 }
 PARTNER_BN = {
-    "Ashulia Community Kitchen (demo)": "আশুলিয়া কমিউনিটি কিচেন (ডেমো)", "Dhaka Food Bank (demo)": "ঢাকা ফুড ব্যাংক (ডেমো)",
-    "Mirpur Shelter Home (demo)": "মিরপুর আশ্রয়কেন্দ্র (ডেমো)", "Savar Compost & Feed Farm (demo)": "সাভার কম্পোস্ট ও ফিড ফার্ম (ডেমো)",
+    "Ashulia Community Kitchen": "আশুলিয়া কমিউনিটি কিচেন", "Ashulia Community Kitchen (demo)": "আশুলিয়া কমিউনিটি কিচেন",
+    "Dhaka Food Bank": "ঢাকা ফুড ব্যাংক", "Dhaka Food Bank (demo)": "ঢাকা ফুড ব্যাংক",
+    "Mirpur Shelter Home": "মিরপুর আশ্রয়কেন্দ্র", "Mirpur Shelter Home (demo)": "মিরপুর আশ্রয়কেন্দ্র",
+    "Savar Compost & Feed Farm": "সাভার কম্পোস্ট ও ফিড ফার্ম", "Savar Compost & Feed Farm (demo)": "সাভার কম্পোস্ট ও ফিড ফার্ম",
 }
 AREA_BN = {"Ashulia": "আশুলিয়া", "Dhaka": "ঢাকা", "Mirpur": "মিরপুর", "Savar": "সাভার"}
 KIND_BN = {"charity": "দাতব্য সংস্থা", "food bank": "ফুড ব্যাংক", "shelter": "আশ্রয়কেন্দ্র", "farm": "খামার", "compost": "কম্পোস্ট"}

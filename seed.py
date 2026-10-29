@@ -42,10 +42,10 @@ PRODUCTS = [
 ]
 
 PARTNERS = [
-    ("Ashulia Community Kitchen (demo)", "charity", "Ashulia", "01700-000001"),
-    ("Dhaka Food Bank (demo)", "food_bank", "Dhaka", "01700-000002"),
-    ("Mirpur Shelter Home (demo)", "shelter", "Mirpur", "01700-000003"),
-    ("Savar Compost & Feed Farm (demo)", "compost", "Savar", "01700-000004"),
+    ("Ashulia Community Kitchen", "charity", "Ashulia", "01700-000001"),
+    ("Dhaka Food Bank", "food_bank", "Dhaka", "01700-000002"),
+    ("Mirpur Shelter Home", "shelter", "Mirpur", "01700-000003"),
+    ("Savar Compost & Feed Farm", "compost", "Savar", "01700-000004"),
 ]
 
 
